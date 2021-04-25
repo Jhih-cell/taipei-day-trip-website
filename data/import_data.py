@@ -4,11 +4,11 @@ import os
 
 # 資料庫參數設定
 db_settings = {
-    "host": "127.0.0.1",
+    "host": "3.140.25.231",
     "port": 3306,
     "user": "root",
-    "password": "****",
-    "db": "travelwebsite",
+    "password": "@Ella2235",
+    "db": "traveldt",
     "charset": "utf8"
 }
 
