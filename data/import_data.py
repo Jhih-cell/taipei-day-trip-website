@@ -7,7 +7,7 @@ db_settings = {
     "host": "3.140.25.231",
     "port": 3306,
     "user": "root",
-    "password": "@Ella2235",
+    "password": "***",
     "db": "traveldt",
     "charset": "utf8"
 }

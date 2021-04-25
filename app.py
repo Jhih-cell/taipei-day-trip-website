@@ -9,7 +9,7 @@ import requests
 mydb = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="ella223567",
+    password="***",
     database="travelwebsite"
 )
 
@@ -188,6 +188,5 @@ def get_attraction_api_byid(attractionId):
 
         return json.dumps(failmessage2,ensure_ascii=False,indent=2), 500 , {"Content-Type": "application/json"}
         
-
-app.run( port=3000) 
+app.run(host="0.0.0.0", port=3000)
 
