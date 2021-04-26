@@ -7,10 +7,10 @@ import os
 import requests
 
 mydb = mysql.connector.connect(
-    host="127.0.0.1",
+    host="3.140.25.231",
     user="root",
     password="***",
-    database="travelwebsite"
+    database="traveldt"
 )
 
 
@@ -55,7 +55,7 @@ def get_attractions_api():
     
             #先判斷篩選再判斷分頁    
             #with no keyword，沒有給定則不做篩選
-            if keyword is None or False or "":
+            if keyword == None or keyword ==False or keyword =="":
                 if pageind >= 0 and pageind <27 and  not None:
                     mycursor = mydb.cursor()
                     sql = "SELECT * FROM traveldt LIMIT  %s,12"
@@ -82,13 +82,13 @@ def get_attractions_api():
                     if pageind==26:
                         successmessage = {
                         "nextPage": None,
-                        "data": data[0]
+                        "data": data
                     }
                         return json.dumps(successmessage,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
                     else:        
                         successmessage = {
                         "nextPage": pageind+1,
-                        "data": data[0]
+                        "data": data
                         }
                         return json.dumps(successmessage,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
             #with keyword，篩選景點名稱的關鍵字
@@ -188,5 +188,4 @@ def get_attraction_api_byid(attractionId):
 
         return json.dumps(failmessage2,ensure_ascii=False,indent=2), 500 , {"Content-Type": "application/json"}
         
-app.run(host="0.0.0.0", port=3000)
-
+app.run(host="0,0,0,0",port=3000)
