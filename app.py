@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from flask import Flask, session, redirect, request, render_template, jsonify
+from flask import Flask, session, redirect, request, render_template, jsonify, url_for
 import mysql.connector
 from mysql.connector import Error
 import json
@@ -7,10 +7,11 @@ import os
 import requests
 
 mydb = mysql.connector.connect(
-    host="3.140.25.231",
+    host="127.0.0.1",
     user="root",
     password="***",
-    database="traveldt"
+    database="travelwebsite",
+    charset= "utf8"
 )
 
 
@@ -22,7 +23,7 @@ app.config["TEMPLATES_AUTO_RELOAD"]=True
 # Pages
 @app.route("/")
 def index():
-	return render_template("index.html")
+	return render_template("indexcopy.html")
 @app.route("/attraction/<id>")
 def attraction(id):
 	return render_template("attraction.html")
@@ -188,4 +189,4 @@ def get_attraction_api_byid(attractionId):
 
         return json.dumps(failmessage2,ensure_ascii=False,indent=2), 500 , {"Content-Type": "application/json"}
         
-app.run(host="0,0,0,0",port=3000)
+app.run(port=3000)
