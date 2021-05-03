@@ -56,6 +56,7 @@
                     attTitle.appendChild(textNode);
                     document.querySelectorAll('.pictitle4')[i].appendChild(attTitle)
                 }
+                scroll()
             }
             req.send();
         }
@@ -120,8 +121,7 @@
             }
             req.send();
         }
-        //onload時的function
-
+        //prevent from 連續call API
         function debounce(func, wait) {
             var timeout;
             return function () {
@@ -129,31 +129,117 @@
                 timeout = setTimeout(func, wait);
             };
         };
-
-        function infinteScroll() {
-            var count = 0;
-            //render第一頁
-            getData();
-            //原本的想法
-            // let infinteScrollSignal = document.querySelector('.infinite-scroll-signal')
-            // document.addEventListener('scroll', function () {
-            //     const rect = infinteScrollSignal.getBoundingClientRect()
-            //     const visibe = document.documentElement.clientHeight;
-            //     const pageHeight = document.documentElement.scrollHeight;
-            //     const scrollY = window.scrollY;
-            //     if (pageHeight - (scrollY + visibe) < 0) {
-            //         console.log("here")
-            //         count++
-            //     }
-            //     setTimeout(() => getData2(count), 20000);
-
-            //     // getData2(count)
-            // })
-
-
+        //一般滾動
+        function scroll(keyword) {
             var windowHeight = document.documentElement.clientHeight // 瀏覽器可視範圍
             var threshold = 20 // 可指定提前載入的範圍
-            var lock = false // 到達指定位置則不再log
+            var lock = false
+            //先把鎖打開
+            var lock = false
+            var count = 0
+
+            if (keyword == false || keyword == "" || keyword == null) {
+                window.addEventListener('scroll', function () {
+                    // 取得rect界限 top, left, right, 和 bottom
+                    // 相對於瀏覽器可是範圍左上角
+                    var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
+
+                    //目標元素距離視窗頂部距離
+                    var targetTop = targetRect.top
+
+                    if (lock) {
+                        return
+                    } else {
+                        // 目標元素距離視窗頂部距離<視窗高度=已捲動到目標元素位置
+                        if (targetTop < (windowHeight + threshold)) {
+                            count++
+                            if (count < 27) {
+                                debounce(getData2(count), 50000)
+                            } else {
+                                lock = true
+                            }
+                        }
+                    }
+
+                })
+            } else {
+                scrollwithkeyword(keyword)
+            }
+
+
+
+        }
+
+        function getData3(count, keyword) {
+            var req = new XMLHttpRequest();
+            req.open("get", "http://127.0.0.1:3000/api/attractions?page=" + count + "&keyword=" + keyword)
+            req.onload = function () {
+                var infiniteWrap = document.querySelector('.infiniteWrap')
+                // 分析JSON資料
+                var attdata = JSON.parse(req.responseText);
+                //new item
+                var item = `<div class="pictitle">
+            <div class="pictitle1${count}"></div>
+            <div class="dset"><span class="pictitle2${count}"></span></div>
+            <div class="dset"><span class="pictitle3${count}"></span><span class="pictitle4${count}"></span></div>
+            </div>`
+                for (var i = 0; i < 12; i++) {
+
+                    infiniteWrap.insertAdjacentHTML('beforeend', item);
+                }
+
+
+                //first image                
+                for (var i = 0; i < 12; i++) {
+                    let attImg = document.createElement('img');
+                    attImg.classList.add('img-width');
+                    var imgSrc = attdata.data[i][0].images[0];
+                    attImg.setAttribute("src", imgSrc);
+                    document.querySelectorAll('.pictitle1' + count)[i].appendChild(attImg);
+                }
+
+                //name
+                for (var i = 0; i < 12; i++) {
+                    let attTitle = document.createElement('div');
+                    attTitle.classList.add('drawing1');
+                    //加入景點名稱
+                    var textNode = document.createTextNode(attdata.data[i][0].name);
+                    attTitle.appendChild(textNode);
+                    document.querySelectorAll('.pictitle2' + count)[i].appendChild(attTitle)
+                }
+                //MRT
+                for (var i = 0; i < 12; i++) {
+                    let attTitle = document.createElement('div');
+                    attTitle.classList.add('drawing2');
+                    //加入景點名稱
+                    var textNode = document.createTextNode(attdata.data[i][0].mrt);
+                    attTitle.appendChild(textNode);
+                    document.querySelectorAll('.pictitle3' + count)[i].appendChild(attTitle)
+                }
+                //genre
+                for (var i = 0; i < 12; i++) {
+                    let attTitle = document.createElement('div');
+                    attTitle.classList.add('drawing3');
+                    //加入景點名稱
+                    var textNode = document.createTextNode(attdata.data[i][0].category);
+                    attTitle.appendChild(textNode);
+                    document.querySelectorAll('.pictitle4' + count)[i].appendChild(attTitle)
+                }
+
+
+            }
+            req.send();
+        }
+
+        //with keyword滾動
+        function scrollwithkeyword(keyword) {
+            var windowHeight = document.documentElement.clientHeight // 瀏覽器可視範圍
+            var threshold = 20 // 可指定提前載入的範圍
+            var lock = false
+            //先把鎖打開
+            var lock = false
+            var count = 0
+
             window.addEventListener('scroll', function () {
                 // 取得rect界限 top, left, right, 和 bottom
                 // 相對於瀏覽器可是範圍左上角
@@ -167,23 +253,16 @@
                 } else {
                     // 目標元素距離視窗頂部距離<視窗高度=已捲動到目標元素位置
                     if (targetTop < (windowHeight + threshold)) {
-                        // lock = true
-                        console.log('bottom')
                         count++
-                        if(count<=26){
-                            debounce(getData2(count),10000)
-                        }else{
+                        if (count < 27) {
+                            debounce(getData3(count, keyword), 50000)
+                        } else {
                             lock = true
                         }
-                        
-
-                        // getData2(count)
                     }
                 }
 
             })
-
-
 
         }
 
@@ -203,8 +282,8 @@
                 // 分析JSON資料
                 var attdata = JSON.parse(req.responseText);
                 // alert(attdata.data[0].id)
-               
-                if (attdata.data =="") {
+
+                if (attdata.data == "") {
                     infiniteWrap.innerHTML = "<h3>查無此關鍵字，請重新查詢</h3>"
                 } else {
                     //new item
@@ -254,11 +333,7 @@
                         document.querySelectorAll('.pictitle4')[i].appendChild(attTitle)
                     }
                 }
-
-
-
-
-
+                scroll(keyword)
             }
             req.send();
         }
@@ -621,6 +696,7 @@
         margin-top: 30px;
     }
 
+
     .img-width {
 
         display: block;
@@ -643,10 +719,12 @@
     }
 
     .pictitle1 {
+        position: relative;
         height: 70%;
     }
 
     .pictitle2 {
+
         height: 30%;
         display: flex;
         flex-direction: column;
@@ -657,6 +735,7 @@
 
 
     .drawing1 {
+
         width: 250px;
         height: 22px;
         margin-left: 10px;
@@ -665,8 +744,8 @@
         font-style: normal;
         font-weight: bold;
         font-size: 16px;
-        line-height: 83%;
-        /* or 83% */
+        line-height: 20px;
+        padding-top: 5%;
 
         display: flex;
         align-items: center;
@@ -715,6 +794,8 @@
 
 
     .dset {
+        padding-top: 3%;
+        padding-bottom: 3%;
         background-color: #fff;
         display: flex;
         align-items: center;
@@ -723,19 +804,19 @@
     }
 
     .footer {
-        flex-shrink: 0;
+        /* flex-shrink: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         padding: 40px 843px;
-        position: absolute;
+        position: absolute; */
 
 
         height: 104px;
-        left: 0px;
+        /* left: 0px;
         bottom: 0;
         position: relative;
-        margin-top: -100px;
+        margin-top: -100px; */
 
 
         /* Gray 700 */
@@ -781,11 +862,6 @@
 
         }
 
-        .pictitle2 {
-            width: 58%;
-            text-align: center;
-            margin: auto;
-        }
 
         .main {
             width: 90%;
@@ -795,12 +871,6 @@
 
     @media (max-width:500px) {
         .pictitle {
-            width: 100%;
-            text-align: center;
-            margin: auto;
-        }
-
-        .pictitle2 {
             width: 100%;
             text-align: center;
             margin: auto;
@@ -822,7 +892,7 @@
             left: -23%;
 
         }
-        
+
 
         img .welcomepic {
             width: 57%;
@@ -831,6 +901,7 @@
 
 
     }
+
     @media (max-width:360px) {
         .pictitle {
             width: 100%;
@@ -860,7 +931,7 @@
             left: -23%;
 
         }
-        
+
 
         img .welcomepic {
             width: 57%;
@@ -869,6 +940,7 @@
 
 
     }
+
     /* @media (min-width: 601px) {
 
         .menu {
@@ -883,7 +955,7 @@
     } */
 </style>
 
-<body onload="infinteScroll();">
+<body onload="getData();">
     <div class="container">
 
         <nav>
@@ -1023,6 +1095,9 @@
 
     </div>
 
+
+    <!-- <div class="bottom"></div> -->
+    </div>
     <footer class="footer infinite-scroll-signal">
         <div class="csec">
             <p class="copyright bottom">COPYRIGHT © 2021 台北一日遊</p>
@@ -1030,9 +1105,6 @@
 
 
     </footer>
-    <!-- <div class="bottom"></div> -->
-    </div>
-
 </body>
 
 </html>
