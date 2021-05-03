@@ -269,7 +269,7 @@
         //關鍵字搜尋
         function getkeyword(x) {
             var keyword = document.getElementById(x).value;
-            alert(keyword);
+            
             search(keyword)
         }
 
@@ -281,7 +281,7 @@
                 var infiniteWrap = document.querySelector('.infiniteWrap')
                 // 分析JSON資料
                 var attdata = JSON.parse(req.responseText);
-                // alert(attdata.data[0].id)
+
 
                 if (attdata.data == "") {
                     infiniteWrap.innerHTML = "<h3>查無此關鍵字，請重新查詢</h3>"
