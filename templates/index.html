@@ -12,7 +12,7 @@
         //抓第一頁景點
         function getData() {
             var req = new XMLHttpRequest();
-            req.open("get", "http://127.0.0.1:3000/api/attractions?page=0")
+            req.open("get", "http://3.140.25.231:3000/api/attractions?page=0")
 
             req.onload = function () {
 
@@ -63,7 +63,7 @@
         //抓無限捲動景點
         function getData2(count) {
             var req = new XMLHttpRequest();
-            req.open("get", "http://127.0.0.1:3000/api/attractions?page=" + count)
+            req.open("get", "http://3.140.25.231:3000/api/attractions?page=" + count)
             req.onload = function () {
                 var infiniteWrap = document.querySelector('.infiniteWrap')
                 // 分析JSON資料
@@ -78,7 +78,7 @@
 
                     infiniteWrap.insertAdjacentHTML('beforeend', item);
                 }
-                console.log("http://127.0.0.1:3000/api/attractions?page=" + count)
+                console.log("http://3.140.25.231:3000/api/attractions?page=" + count)
 
                 //first image                
                 for (var i = 0; i < 12; i++) {
@@ -138,41 +138,41 @@
             var lock = false
             var count = 0
 
-            if (keyword == false || keyword == "" || keyword == null) {
+            if (keyword==false || keyword =="" ||keyword==null){
                 window.addEventListener('scroll', function () {
-                    // 取得rect界限 top, left, right, 和 bottom
-                    // 相對於瀏覽器可是範圍左上角
-                    var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
+                // 取得rect界限 top, left, right, 和 bottom
+                // 相對於瀏覽器可是範圍左上角
+                var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
 
-                    //目標元素距離視窗頂部距離
-                    var targetTop = targetRect.top
+                //目標元素距離視窗頂部距離
+                var targetTop = targetRect.top
 
-                    if (lock) {
-                        return
-                    } else {
-                        // 目標元素距離視窗頂部距離<視窗高度=已捲動到目標元素位置
-                        if (targetTop < (windowHeight + threshold)) {
-                            count++
-                            if (count < 27) {
-                                debounce(getData2(count), 50000)
-                            } else {
-                                lock = true
-                            }
+                if (lock) {
+                    return
+                } else {
+                    // 目標元素距離視窗頂部距離<視窗高度=已捲動到目標元素位置
+                    if (targetTop < (windowHeight + threshold)) {
+                        count++
+                        if (count < 27) {
+                            debounce(getData2(count), 50000)
+                        } else {
+                            lock = true
                         }
                     }
+                }
 
-                })
-            } else {
+            })
+            }else{
                 scrollwithkeyword(keyword)
             }
 
-
+            
 
         }
-
-        function getData3(count, keyword) {
+        
+        function getData3(count,keyword) {
             var req = new XMLHttpRequest();
-            req.open("get", "http://127.0.0.1:3000/api/attractions?page=" + count + "&keyword=" + keyword)
+            req.open("get", "http://3.140.25.231:3000/api/attractions?page=" + count+"&keyword="+keyword)
             req.onload = function () {
                 var infiniteWrap = document.querySelector('.infiniteWrap')
                 // 分析JSON資料
@@ -187,7 +187,7 @@
 
                     infiniteWrap.insertAdjacentHTML('beforeend', item);
                 }
-
+                console.log("http://3.140.25.231:3000/api/attractions?page=" + count)
 
                 //first image                
                 for (var i = 0; i < 12; i++) {
@@ -255,7 +255,7 @@
                     if (targetTop < (windowHeight + threshold)) {
                         count++
                         if (count < 27) {
-                            debounce(getData3(count, keyword), 50000)
+                            debounce(getData3(count,keyword), 50000)
                         } else {
                             lock = true
                         }
@@ -269,19 +269,19 @@
         //關鍵字搜尋
         function getkeyword(x) {
             var keyword = document.getElementById(x).value;
-            
+            alert(keyword);
             search(keyword)
         }
 
         function search(keyword) {
             var req = new XMLHttpRequest();
-            req.open("get", "http://127.0.0.1:3000/api/attractions?page=0&keyword=" + keyword)
+            req.open("get", "http://3.140.25.231:3000/api/attractions?page=0&keyword=" + keyword)
 
             req.onload = function () {
                 var infiniteWrap = document.querySelector('.infiniteWrap')
                 // 分析JSON資料
                 var attdata = JSON.parse(req.responseText);
-
+                // alert(attdata.data[0].id)
 
                 if (attdata.data == "") {
                     infiniteWrap.innerHTML = "<h3>查無此關鍵字，請重新查詢</h3>"
@@ -333,6 +333,9 @@
                         document.querySelectorAll('.pictitle4')[i].appendChild(attTitle)
                     }
                 }
+               
+                let keyword=keyword
+
                 scroll(keyword)
             }
             req.send();
