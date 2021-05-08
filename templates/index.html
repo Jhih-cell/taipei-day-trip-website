@@ -15,7 +15,6 @@
             req.open("get", "http://3.140.25.231:3000/api/attractions?page=0")
 
             req.onload = function () {
-
                 // 分析JSON資料
                 var attdata = JSON.parse(req.responseText);
                 //測試有抓到資料
@@ -23,13 +22,18 @@
 
                 //first image                
                 for (var i = 0; i < 12; i++) {
+                    let link = document.createElement('a');
+                    let linkhref = "http://3.140.25.231:3000/attraction/" + (i + 1)
+                    link.setAttribute("href", linkhref)
+
                     let attImg = document.createElement('img');
                     attImg.classList.add('img-width');
                     let imgSrc = attdata.data[i][0].images[0];
                     attImg.setAttribute("src", imgSrc);
-                    document.querySelectorAll('.pictitle1')[i].appendChild(attImg);
+                    link.appendChild(attImg);
+                    document.querySelectorAll('.pictitle1')[i].appendChild(link);
                 }
-                // //name
+                //name
                 for (var i = 0; i < 12; i++) {
                     let attTitle = document.createElement('div');
                     attTitle.classList.add('drawing1');
@@ -38,7 +42,7 @@
                     attTitle.appendChild(textNode);
                     document.querySelectorAll('.pictitle2')[i].appendChild(attTitle)
                 }
-                // //MRT
+                //MRT
                 for (var i = 0; i < 12; i++) {
                     let attTitle = document.createElement('div');
                     attTitle.classList.add('drawing2');
@@ -47,7 +51,7 @@
                     attTitle.appendChild(textNode);
                     document.querySelectorAll('.pictitle3')[i].appendChild(attTitle)
                 }
-                // //genre
+                //genre
                 for (var i = 0; i < 12; i++) {
                     let attTitle = document.createElement('div');
                     attTitle.classList.add('drawing3');
@@ -56,290 +60,107 @@
                     attTitle.appendChild(textNode);
                     document.querySelectorAll('.pictitle4')[i].appendChild(attTitle)
                 }
-                scroll()
-            }
-            req.send();
-        }
-        //抓無限捲動景點
-        function getData2(count) {
-            var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/attractions?page=" + count)
-            req.onload = function () {
-                var infiniteWrap = document.querySelector('.infiniteWrap')
-                // 分析JSON資料
-                var attdata = JSON.parse(req.responseText);
-                //new item
-                var item = `<div class="pictitle">
-            <div class="pictitle1${count}"></div>
-            <div class="dset"><span class="pictitle2${count}"></span></div>
-            <div class="dset"><span class="pictitle3${count}"></span><span class="pictitle4${count}"></span></div>
-            </div>`
-                for (var i = 0; i < 12; i++) {
 
-                    infiniteWrap.insertAdjacentHTML('beforeend', item);
-                }
-                console.log("http://3.140.25.231:3000/api/attractions?page=" + count)
-
-                //first image                
-                for (var i = 0; i < 12; i++) {
-                    let attImg = document.createElement('img');
-                    attImg.classList.add('img-width');
-                    var imgSrc = attdata.data[i][0].images[0];
-                    attImg.setAttribute("src", imgSrc);
-                    document.querySelectorAll('.pictitle1' + count)[i].appendChild(attImg);
-                }
-
-                //name
-                for (var i = 0; i < 12; i++) {
-                    let attTitle = document.createElement('div');
-                    attTitle.classList.add('drawing1');
-                    //加入景點名稱
-                    var textNode = document.createTextNode(attdata.data[i][0].name);
-                    attTitle.appendChild(textNode);
-                    document.querySelectorAll('.pictitle2' + count)[i].appendChild(attTitle)
-                }
-                //MRT
-                for (var i = 0; i < 12; i++) {
-                    let attTitle = document.createElement('div');
-                    attTitle.classList.add('drawing2');
-                    //加入景點名稱
-                    var textNode = document.createTextNode(attdata.data[i][0].mrt);
-                    attTitle.appendChild(textNode);
-                    document.querySelectorAll('.pictitle3' + count)[i].appendChild(attTitle)
-                }
-                //genre
-                for (var i = 0; i < 12; i++) {
-                    let attTitle = document.createElement('div');
-                    attTitle.classList.add('drawing3');
-                    //加入景點名稱
-                    var textNode = document.createTextNode(attdata.data[i][0].category);
-                    attTitle.appendChild(textNode);
-                    document.querySelectorAll('.pictitle4' + count)[i].appendChild(attTitle)
-                }
-
-
-            }
-            req.send();
-        }
-        //prevent from 連續call API
-        function debounce(func, wait) {
-            var timeout;
-            return function () {
-                clearTimeout(timeout);
-                timeout = setTimeout(func, wait);
-            };
-        };
-        //一般滾動
-        function scroll(keyword) {
-            var windowHeight = document.documentElement.clientHeight // 瀏覽器可視範圍
-            var threshold = 20 // 可指定提前載入的範圍
-            var lock = false
-            //先把鎖打開
-            var lock = false
-            var count = 0
-
-            if (keyword==false || keyword =="" ||keyword==null){
+                //利用 window 的 scroll 事件，搭配 HTML 元件的 getBoundingClientRect 等等方法來偵測頁面是否已經捲動到最下方。
+                var windowHeight = document.documentElement.clientHeight // 瀏覽器可視範圍
+                var count = 0;
+                let lock = false;
                 window.addEventListener('scroll', function () {
-                // 取得rect界限 top, left, right, 和 bottom
-                // 相對於瀏覽器可是範圍左上角
-                var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
+                    // 取得rect界限 top, left, right, 和 bottom
+                    // 相對於瀏覽器可視範圍左上角
+                    var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
 
-                //目標元素距離視窗頂部距離
-                var targetTop = targetRect.top
+                    //目標元素距離視窗頂部距離
+                    var targetTop = targetRect.top
 
-                if (lock) {
-                    return
-                } else {
-                    // 目標元素距離視窗頂部距離<視窗高度=已捲動到目標元素位置
-                    if (targetTop < (windowHeight + threshold)) {
-                        count++
-                        if (count < 27) {
-                            debounce(getData2(count), 50000)
+                    if (count < 26) {
+                        if (lock) {
+                            return
                         } else {
-                            lock = true
+                            console.log(targetTop, windowHeight);
+                            if (targetTop < windowHeight) {
+                                count++
+                                //若目標元素距離視窗頂部距離<視窗高度，呼叫 API 載入下一頁的資訊
+                                //debounce(getnextpage, 3000)
+                                setTimeout(getnextpage, 500);
+                                lock = true;
+                                // getnextpage();
+                            }
                         }
                     }
-                }
-
-            })
-            }else{
-                scrollwithkeyword(keyword)
-            }
-
-            
-
-        }
-        
-        function getData3(count,keyword) {
-            var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/attractions?page=" + count+"&keyword="+keyword)
-            req.onload = function () {
-                var infiniteWrap = document.querySelector('.infiniteWrap')
-                // 分析JSON資料
-                var attdata = JSON.parse(req.responseText);
-                //new item
-                var item = `<div class="pictitle">
+                    function debounce(func, wait) {
+                        var timeout;
+                        return function () {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(func, wait);
+                        };
+                    };
+                    function getnextpage() {
+                        var req = new XMLHttpRequest();
+                        req.open("get", "http://3.140.25.231:3000/api/attractions?page=" + count)
+                        req.onload = function () {
+                            var infiniteWrap = document.querySelector('.infiniteWrap')
+                            // 分析JSON資料
+                            var attdata = JSON.parse(req.responseText);
+                            //new item
+                            var item = `<div class="pictitle">
             <div class="pictitle1${count}"></div>
             <div class="dset"><span class="pictitle2${count}"></span></div>
             <div class="dset"><span class="pictitle3${count}"></span><span class="pictitle4${count}"></span></div>
             </div>`
-                for (var i = 0; i < 12; i++) {
+                            for (var i = 0; i < 12; i++) {
+                                infiniteWrap.insertAdjacentHTML('beforeend', item);
+                            }
+                            //first image                
+                            for (var i = 0; i < 12; i++) {
+                                let link = document.createElement('a');
+                                let linkhref = "http://3.140.25.231:3000/attraction/" + (count * 12 + i + 1)
+                                link.setAttribute("href", linkhref)
+                                let attImg = document.createElement('img');
+                                attImg.classList.add('img-width');
+                                var imgSrc = attdata.data[i][0].images[0];
+                                attImg.setAttribute("src", imgSrc);
+                                link.appendChild(attImg)
+                                document.querySelectorAll('.pictitle1' + count)[i].appendChild(link);
+                            }
 
-                    infiniteWrap.insertAdjacentHTML('beforeend', item);
-                }
-                console.log("http://3.140.25.231:3000/api/attractions?page=" + count)
-
-                //first image                
-                for (var i = 0; i < 12; i++) {
-                    let attImg = document.createElement('img');
-                    attImg.classList.add('img-width');
-                    var imgSrc = attdata.data[i][0].images[0];
-                    attImg.setAttribute("src", imgSrc);
-                    document.querySelectorAll('.pictitle1' + count)[i].appendChild(attImg);
-                }
-
-                //name
-                for (var i = 0; i < 12; i++) {
-                    let attTitle = document.createElement('div');
-                    attTitle.classList.add('drawing1');
-                    //加入景點名稱
-                    var textNode = document.createTextNode(attdata.data[i][0].name);
-                    attTitle.appendChild(textNode);
-                    document.querySelectorAll('.pictitle2' + count)[i].appendChild(attTitle)
-                }
-                //MRT
-                for (var i = 0; i < 12; i++) {
-                    let attTitle = document.createElement('div');
-                    attTitle.classList.add('drawing2');
-                    //加入景點名稱
-                    var textNode = document.createTextNode(attdata.data[i][0].mrt);
-                    attTitle.appendChild(textNode);
-                    document.querySelectorAll('.pictitle3' + count)[i].appendChild(attTitle)
-                }
-                //genre
-                for (var i = 0; i < 12; i++) {
-                    let attTitle = document.createElement('div');
-                    attTitle.classList.add('drawing3');
-                    //加入景點名稱
-                    var textNode = document.createTextNode(attdata.data[i][0].category);
-                    attTitle.appendChild(textNode);
-                    document.querySelectorAll('.pictitle4' + count)[i].appendChild(attTitle)
-                }
-
-
-            }
-            req.send();
-        }
-
-        //with keyword滾動
-        function scrollwithkeyword(keyword) {
-            var windowHeight = document.documentElement.clientHeight // 瀏覽器可視範圍
-            var threshold = 20 // 可指定提前載入的範圍
-            var lock = false
-            //先把鎖打開
-            var lock = false
-            var count = 0
-
-            window.addEventListener('scroll', function () {
-                // 取得rect界限 top, left, right, 和 bottom
-                // 相對於瀏覽器可是範圍左上角
-                var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
-
-                //目標元素距離視窗頂部距離
-                var targetTop = targetRect.top
-
-                if (lock) {
-                    return
-                } else {
-                    // 目標元素距離視窗頂部距離<視窗高度=已捲動到目標元素位置
-                    if (targetTop < (windowHeight + threshold)) {
-                        count++
-                        if (count < 27) {
-                            debounce(getData3(count,keyword), 50000)
-                        } else {
-                            lock = true
+                            //name
+                            for (var i = 0; i < 12; i++) {
+                                let attTitle = document.createElement('div');
+                                attTitle.classList.add('drawing1');
+                                //加入景點名稱
+                                var textNode = document.createTextNode(attdata.data[i][0].name);
+                                attTitle.appendChild(textNode);
+                                document.querySelectorAll('.pictitle2' + count)[i].appendChild(attTitle)
+                            }
+                            //MRT
+                            for (var i = 0; i < 12; i++) {
+                                let attTitle = document.createElement('div');
+                                attTitle.classList.add('drawing2');
+                                //加入景點名稱
+                                var textNode = document.createTextNode(attdata.data[i][0].mrt);
+                                attTitle.appendChild(textNode);
+                                document.querySelectorAll('.pictitle3' + count)[i].appendChild(attTitle)
+                            }
+                            //genre
+                            for (var i = 0; i < 12; i++) {
+                                let attTitle = document.createElement('div');
+                                attTitle.classList.add('drawing3');
+                                //加入景點名稱
+                                var textNode = document.createTextNode(attdata.data[i][0].category);
+                                attTitle.appendChild(textNode);
+                                document.querySelectorAll('.pictitle4' + count)[i].appendChild(attTitle)
+                            }
+                            lock = false;
                         }
+                        req.send();
+
                     }
-                }
-
-            })
-
-        }
-
-        //關鍵字搜尋
-        function getkeyword(x) {
-            var keyword = document.getElementById(x).value;
-            alert(keyword);
-            search(keyword)
-        }
-
-        function search(keyword) {
-            var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/attractions?page=0&keyword=" + keyword)
-
-            req.onload = function () {
-                var infiniteWrap = document.querySelector('.infiniteWrap')
-                // 分析JSON資料
-                var attdata = JSON.parse(req.responseText);
-                // alert(attdata.data[0].id)
-
-                if (attdata.data == "") {
-                    infiniteWrap.innerHTML = "<h3>查無此關鍵字，請重新查詢</h3>"
-                } else {
-                    //new item
-                    infiniteWrap.innerHTML = ""
-                    var item = `<div class="pictitle">
-            <div class="pictitle1"></div>
-            <div class="dset"><span class="pictitle2"></span></div>
-            <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
-            </div>`
-                    for (var i = 0; i < 12; i++) {
-                        infiniteWrap.insertAdjacentHTML('beforeend', item);
-                    }
-
-                    //first image                
-                    for (var i = 0; i < 12; i++) {
-                        let attImg = document.createElement('img');
-                        attImg.classList.add('img-width');
-                        let imgSrc = attdata.data[i].images[0];
-                        attImg.setAttribute("src", imgSrc);
-                        document.querySelectorAll('.pictitle1')[i].appendChild(attImg);
-                    }
-                    //name
-                    for (var i = 0; i < 12; i++) {
-                        let attTitle = document.createElement('div');
-                        attTitle.classList.add('drawing1');
-                        //加入景點名稱
-                        let textNode = document.createTextNode(attdata.data[i].name);
-                        attTitle.appendChild(textNode);
-                        document.querySelectorAll('.pictitle2')[i].appendChild(attTitle)
-                    }
-                    //MRT
-                    for (var i = 0; i < 12; i++) {
-                        let attTitle = document.createElement('div');
-                        attTitle.classList.add('drawing2');
-                        //加入景點名稱
-                        let textNode = document.createTextNode(attdata.data[i].mrt);
-                        attTitle.appendChild(textNode);
-                        document.querySelectorAll('.pictitle3')[i].appendChild(attTitle)
-                    }
-                    //genre
-                    for (var i = 0; i < 12; i++) {
-                        let attTitle = document.createElement('div');
-                        attTitle.classList.add('drawing3');
-                        //加入景點名稱
-                        let textNode = document.createTextNode(attdata.data[i].category);
-                        attTitle.appendChild(textNode);
-                        document.querySelectorAll('.pictitle4')[i].appendChild(attTitle)
-                    }
-                }
-               
-                let keyword=keyword
-
-                scroll(keyword)
+                })
             }
             req.send();
         }
+
     </script>
 </head>
 <style>
@@ -724,6 +545,12 @@
     .pictitle1 {
         position: relative;
         height: 70%;
+    }
+
+    a {
+        text-decoration: none;
+        outline: none;
+
     }
 
     .pictitle2 {

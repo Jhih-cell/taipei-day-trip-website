@@ -6,10 +6,17 @@ import json
 import os
 import requests
 
+
+
+
+
+
+
+
 mydb = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="***",
+    password="ella223567",
     database="travelwebsite",
     charset= "utf8"
 )
@@ -23,7 +30,7 @@ app.config["TEMPLATES_AUTO_RELOAD"]=True
 # Pages
 @app.route("/")
 def index():
-	return render_template("indexcopy.html")
+	return render_template("index.html")
 @app.route("/attraction/<id>")
 def attraction(id):
 	return render_template("attraction.html")
@@ -52,6 +59,7 @@ def get_attractions_api():
     }
     
     try:
+        # print("Connection", mydb.is_connected())
         if mydb.is_connected() is True:   
     
             #先判斷篩選再判斷分頁    
@@ -80,16 +88,17 @@ def get_attractions_api():
                         },
                         data.append(body)
                     #判斷是否是最後頁
+                    print("Page", pageind)
                     if pageind==26:
                         successmessage = {
-                        "nextPage": None,
-                        "data": data
-                    }
+                            "nextPage": None,
+                            "data": data
+                        }
                         return json.dumps(successmessage,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
                     else:        
                         successmessage = {
-                        "nextPage": pageind+1,
-                        "data": data
+                            "nextPage": pageind+1,
+                            "data": data
                         }
                         return json.dumps(successmessage,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
             #with keyword，篩選景點名稱的關鍵字
@@ -138,6 +147,7 @@ def get_attractions_api():
                         }
                         return json.dumps(successmessage_lessthan12,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
     except :
+        # print("Except Section")
         return jsonify(failmessage),500
         
         
