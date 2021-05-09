@@ -1,16 +1,24 @@
 from __future__ import unicode_literals
-from flask import Flask, session, redirect, request, render_template, jsonify
+from flask import Flask, session, redirect, request, render_template, jsonify, url_for
 import mysql.connector
 from mysql.connector import Error
 import json
 import os
 import requests
 
+
+
+
+
+
+
+
 mydb = mysql.connector.connect(
-    host="3.140.25.231",
+    host="127.0.0.1",
     user="root",
-    password="***",
-    database="traveldt"
+    password="******",
+    database="travelwebsite",
+    charset= "utf8"
 )
 
 
@@ -51,6 +59,7 @@ def get_attractions_api():
     }
     
     try:
+        # print("Connection", mydb.is_connected())
         if mydb.is_connected() is True:   
     
             #先判斷篩選再判斷分頁    
@@ -79,16 +88,17 @@ def get_attractions_api():
                         },
                         data.append(body)
                     #判斷是否是最後頁
+                    print("Page", pageind)
                     if pageind==26:
                         successmessage = {
-                        "nextPage": None,
-                        "data": data
-                    }
+                            "nextPage": None,
+                            "data": data
+                        }
                         return json.dumps(successmessage,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
                     else:        
                         successmessage = {
-                        "nextPage": pageind+1,
-                        "data": data
+                            "nextPage": pageind+1,
+                            "data": data
                         }
                         return json.dumps(successmessage,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
             #with keyword，篩選景點名稱的關鍵字
@@ -137,6 +147,7 @@ def get_attractions_api():
                         }
                         return json.dumps(successmessage_lessthan12,ensure_ascii=False,indent=2), 200 , {"Content-Type": "application/json"}
     except :
+        # print("Except Section")
         return jsonify(failmessage),500
         
         
@@ -188,4 +199,4 @@ def get_attraction_api_byid(attractionId):
 
         return json.dumps(failmessage2,ensure_ascii=False,indent=2), 500 , {"Content-Type": "application/json"}
         
-app.run(host="0,0,0,0",port=3000)
+app.run(port=3000)

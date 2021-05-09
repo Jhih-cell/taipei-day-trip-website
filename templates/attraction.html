@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
+    <title>attraction</title>
+    <script>
+        function getData() {
+            var getUrlString = location.href;
+            var url = new URL(getUrlString);
+            var param = url.pathname.replace("/attraction/", "")
+            var req = new XMLHttpRequest();
+            req.open("get", "http://3.140.25.231:3000/api/attraction/" + param)
+
+            req.onload = function () {
+
+                // 分析JSON資料
+                var attdata = JSON.parse(req.responseText);
+                console.log(attdata.data.name)
+
+
+                //景點名稱
+                document.querySelector('.title').innerText = attdata.data.name
+                //category
+                document.querySelector('.category').innerText = attdata.data.category
+                //MRT
+                document.querySelector('.mrt').innerText = attdata.data.mrt
+                //info
+                document.querySelector('.content').innerText = attdata.data.description
+                //addr
+                document.querySelector('.locaddcont').innerText = attdata.data.address
+                //transportation
+                document.querySelector('.trawaycont').innerText = attdata.data.transport
+                //guiding fee
+                var dollar = document.querySelector('.dollar')
+                var choose1 = document.getElementById("part1")
+                var choose2 = document.getElementById("part2")
+                choose1.addEventListener('click', function () {
+                    if (choose1.checked == false && choose2.checked == false) {
+                        dollar.innerText = ""
+                    } else {
+                        choose2.checked = false
+                        dollar.innerText = "2000"
+                    }
+
+                })
+                choose2.addEventListener('click', function () {
+                    if (choose1.checked == false && choose2.checked == false) {
+                        dollar.innerText = ""
+                    } else {
+                        choose1.checked = false
+                        dollar.innerText = "2500"
+                    }
+                })
+                //first image
+                var count = 0
+                var carousel = document.querySelector('.Carousel')
+                var attImg = document.createElement('img');
+                attImg.classList.add('cimg');
+                var imgSrc = attdata.data.images[0];
+                attImg.setAttribute("src", imgSrc);
+                carousel.appendChild(attImg);
+                //小圓點
+                var circlecount = attdata.data.images.length;
+                console.log(circlecount)
+
+
+                for (var i = 0; i < circlecount; i++) {
+                    let circleinput = document.createElement('input');
+                    circleinput.classList.add('circle');
+                    circleinput.setAttribute("type", "checkbox");
+                    document.querySelector('.circles').appendChild(circleinput)
+                }
+
+                //carousel
+                var next = document.querySelector('.right')
+                var pre = document.querySelector('.left')
+
+                function setimg() {
+                    if (count < 0) {
+                        count = 0
+                    } else if (count >= attdata.data.images.length) {
+                        count = attdata.data.images.length - 1
+                    }
+
+
+                    attImg.removeAttribute("src", imgSrc);
+                    imgSrc = attdata.data.images[count];
+                    attImg.setAttribute("src", imgSrc);
+                }
+
+                function nextcircle() {
+                    if (count < 0) {
+                        count = 0
+                    } else if (count >= attdata.data.images.length) {
+                        count = attdata.data.images.length - 1
+                    }
+                    dots[count - 1].checked = false
+                    dots[count].checked = true
+
+                }
+                function precircle() {
+                    if (count < 0) {
+                        count = 0
+                    } else if (count >= attdata.data.images.length) {
+                        count = attdata.data.images.length - 1
+                    }
+                    dots[count + 1].checked = false
+                    dots[count].checked = true
+                }
+                var dots = document.querySelectorAll('.circle');
+                next.addEventListener('click', function () {
+                    count++
+                    nextcircle();
+                    setimg();
+                })
+                pre.addEventListener('click', function () {
+                    count--
+                    precircle();
+                    setimg();
+                })
+
+
+
+            }
+            req.send();
+
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+</head>
+<style>
+    @import url(https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300&display=swap);
+    @import url(https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap);
+
+    nav {
+        height: 54px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        text-align: center;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        z-index: 11;
+        border-bottom: 1px solid #E8E8E8;
+        background: #FFFFFF;
+
+    }
+
+    .nav {
+        width: 1200px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: auto;
+    }
+
+    .nav_div_h1 {
+        font-family: Noto Sans;
+        font-style: normal;
+
+        font-weight: bold;
+        font-size: 30px;
+        line-height: 34px;
+        color: #448899;
+
+    }
+
+    .frame1 {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .bt1 {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 13px;
+        color: #666666;
+        margin: 10px 0px;
+        padding: 10px;
+    }
+
+    .bt2 {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 13px;
+        color: #666666;
+        margin: 10px 0px;
+        padding: 10px;
+    }
+
+
+
+    section {
+        padding-top: 53px;
+    }
+
+
+    .wrap {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding-bottom: 40px;
+    }
+
+
+    .Carousel {
+        width: 540px;
+        height: 406px;
+        margin-top: 40px;
+        margin-right: 15px;
+        margin-bottom: 37px;
+        position: relative;
+    }
+
+    .left,
+    .right {
+        width: 36px;
+        display: flex;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .left {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        margin-left: 10px;
+        opacity: 0.75;
+    }
+
+    .right {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        margin-right: 10px;
+        opacity: 0.75;
+    }
+
+    .cimg {
+        height: 100%;
+        width: 100%;
+    }
+
+    .circles {
+        display: flex;
+        justify-content: center;
+        height: 12px;
+        top: 93%;
+        bottom: 2%;
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 9;
+    }
+
+    .circle {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        outline: none;
+        width: 12px;
+        height: 12px;
+        background: #FFFFFF;
+        border-radius: 50%;
+        opacity: 75%;
+
+    }
+
+    .circle:checked {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        outline: none;
+        width: 11px;
+        height: 11px;
+        background: #000000;
+        border-radius: 50%;
+        opacity: 75%;
+        border: #FFFFFF 1px solid
+    }
+
+
+    .profile {
+        width: 600px;
+        height: 400px;
+        margin-top: 40px;
+        margin-left: 30px;
+    }
+
+    .bookingform {
+        width: 600px;
+        height: 302px;
+        background: #E8E8E8;
+        border-radius: 5px;
+
+    }
+
+    .bookingform span {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 18px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        color: #666666;
+
+    }
+
+    .normal {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        text-align: left;
+
+        font-size: 16px;
+        line-height: 18px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        color: #666666;
+    }
+
+    .bookingform .date,
+    .choose,
+    .charge {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .fee {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 13px;
+        display: flex;
+        align-items: center;
+        color: #666666;
+    }
+
+    .dollar {
+        margin: 3px 3px 3px 3px;
+    }
+
+    /* 隱藏 checkbox */
+    #toggle-1 {
+        display: none;
+    }
+
+
+
+
+    .box {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        outline: none;
+        width: 22px;
+        height: 22px;
+        background: #FFFFFF;
+        border-radius: 50%;
+    }
+
+    .box:checked {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        outline: none;
+        width: 18px;
+        height: 18px;
+        background: #448899;
+        border-radius: 50%;
+        border: #FFFFFF 2px solid
+    }
+
+    button {
+        padding: 10px 18px;
+        width: 154px;
+        height: 36px;
+        background: #448899;
+        border-radius: 5px;
+        margin-left: 20px;
+        margin-bottom: 41px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 19px;
+        line-height: 16px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .title {
+        width: 600px;
+        height: 33px;
+        margin-bottom: 15px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 24px;
+        line-height: 24px;
+        align-items: center;
+        text-align: left;
+        color: #666666;
+    }
+
+    .category {
+        margin-right: 5px;
+    }
+
+    .mrt {
+        margin-left: 5px;
+    }
+
+    .location {
+
+        width: 600px;
+        height: 22px;
+        margin-bottom: 20px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 13px;
+        align-items: center;
+        text-align: left;
+        color: #666666;
+    }
+
+    .seperator_main {
+        border: 1px solid #E8E8E8;
+        width: 62.5%;
+        height: 0px;
+        margin: auto;
+    }
+
+    .info {
+        width: 1180px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 120px;
+    }
+
+    .info .content {
+        width: 1180px;
+        margin-top: 50px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 23px;
+        color: #666666;
+    }
+
+    .locadd {
+        width: 1180px;
+        height: 32px;
+        left: 10px;
+        top: 126px;
+
+        /* Body - Bold 16(13.3) */
+
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 13px;
+        display: flex;
+        align-items: center;
+        color: #666666;
+    }
+
+    .locaddcont {
+        width: 1180px;
+        height: 24px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 23px;
+        margin-bottom: 20px;
+        color: #666666;
+    }
+
+    .traway {
+        width: 1180px;
+        height: 32px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 13px;
+        display: flex;
+        align-items: center;
+        color: #666666;
+
+    }
+
+    .trawaycont {
+        width: 1180px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 23px;
+        color: #666666;
+    }
+
+    footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* padding: 40px 0; */
+        /* height: 104px; */
+        background: #757575;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 13px;
+        color: #FFFFFF;
+        height: 104px;
+        line-height: 104px;
+
+    }
+
+    footer p {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 13px;
+        color: #FFFFFF;
+        padding: 5%;
+    }
+
+    @media (max-width:1200px) {
+
+        .wrap {
+            display: grid;
+        }
+
+        nav {
+            width: 100%;
+        }
+
+        .nav {
+            width: 95%
+        }
+
+        .info,
+        .info .content,
+        .locadd,
+        .locaddcont,
+        .traway,
+        .trawaycont {
+            width: 98%;
+        }
+
+        section,
+        .seperator_main,
+        .profile,
+        .title,
+        .location,
+        .bookingform {
+            width: 90%;
+        }
+
+        section {
+            margin: auto;
+            text-align: center;
+        }
+        .Carousel{
+            width: 360px;
+            height: 270px;
+        }
+
+    }
+
+    @media (max-width:500px) {
+        .wrap {
+            display: grid;
+        }
+
+        nav {
+            width: 100%;
+        }
+
+        .nav {
+            width: 95%
+        }
+
+        .info,
+        .info .content,
+        .locadd,
+        .locaddcont,
+        .traway,
+        .trawaycont {
+            width: 98%;
+        }
+
+        section,
+        .seperator_main,
+        .profile,
+        .title,
+        .location,
+        .bookingform {
+            width: 90%;
+        }
+
+        section {
+            margin: auto;
+            text-align: center;
+        }
+        .Carousel{
+            width: 360px;
+            height: 270px;
+        }
+    }
+
+
+    @media (min-width:360px) {
+        
+    }
+</style>
+
+<body onload="getData();">
+    <nav>
+        <div class="nav">
+            <div class="nav_div_h1">臺北一日遊</div>
+            <div class="frame1">
+                <div class="bt1">預定行程</div>
+                <div class="bt2">登入/註冊</div>
+            </div>
+        </div>
+        </div>
+
+
+    </nav>
+
+
+    <section>
+        <div class="wrap">
+
+            <div class="Carousel">
+                <div class="left">
+                    <img class="lefttrigger" src="{{ url_for('static', filename='images/btn_leftArrow.png') }}" alt="">
+                </div>
+                <div class="right">
+                    <img class="righttrigger" src="{{ url_for('static', filename='images/btn_rightArrow.png') }}"
+                        alt="">
+                </div>
+                <div class="circles"></div>
+            </div>
+            <div class="profile">
+                <div class="title">平安鐘</div>
+                <div class="location"><span class="category">公共藝術</span>at<span class="mrt">忠孝復興</span></div>
+                <div class="bookingform">
+                    <div class="title"><span>訂購導覽行程</span></div>
+                    <div class="normal">以此景點為中心的一日行程，帶您探索城市角落故事</div>
+                    <div class="date"><span>選擇日期:</span><input id="date" type="date"></div>
+                    <div class="choose"><span>選擇時間：</span><input id="part1" class="box" type="checkbox">上半天<input
+                            id="part2" class="box" type="checkbox">下半天</div>
+
+                    <div class="charge"><span>導覽費用：</span>
+                        <div class="normal">新台幣<span class="dollar"></span>元</div>
+                    </div>
+                    <button>開始預訂行程</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="seperator_main"></div>
+    <div class="info">
+        <div class="content">infocontent</div>
+        <div class="locadd">景點地址</div>
+        <div class="locaddcont">臺北市 大安區忠孝東路4段</div>
+        <div class="traway">交通方式</div>
+        <div class="trawaycont">
+            捷運站名：忠孝復興站4號出口1.公車：204、212、212直、232、232副、262、262(區間)、278、299、521、605、605(副)、605(新台五線)、667、903、忠孝新幹線至頂好市場站
+            2.車位：太平洋崇光百貨地下停車場或市民大道附近地下停車場</div>
+    </div>
+    <footer>COPYRIGHT © 2021 台北一日遊</footer>
+
+
+</body>
+
+</html>

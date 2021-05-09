@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1 ,maximum-scale=1">
+    <title>Taipei attractions</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+
+    <script type="text/javascript">
+        //抓第一頁景點
+        function getData() {
+            var req = new XMLHttpRequest();
+            req.open("get", "http://3.140.25.231:3000/api/attractions?page=0")
+
+            req.onload = function () {
+                // 分析JSON資料
+                var attdata = JSON.parse(req.responseText);
+                //測試有抓到資料
+                // alert(attdata.nextPage)
+
+                //first image                
+                for (var i = 0; i < 12; i++) {
+                    let link = document.createElement('a');
+                    let linkhref = "http://3.140.25.231:3000/attraction/" + (i + 1)
+                    link.setAttribute("href", linkhref)
+
+                    let attImg = document.createElement('img');
+                    attImg.classList.add('img-width');
+                    let imgSrc = attdata.data[i][0].images[0];
+                    attImg.setAttribute("src", imgSrc);
+                    link.appendChild(attImg);
+                    document.querySelectorAll('.pictitle1')[i].appendChild(link);
+                }
+                //name
+                for (var i = 0; i < 12; i++) {
+                    let attTitle = document.createElement('div');
+                    attTitle.classList.add('drawing1');
+                    //加入景點名稱
+                    let textNode = document.createTextNode(attdata.data[i][0].name);
+                    attTitle.appendChild(textNode);
+                    document.querySelectorAll('.pictitle2')[i].appendChild(attTitle)
+                }
+                //MRT
+                for (var i = 0; i < 12; i++) {
+                    let attTitle = document.createElement('div');
+                    attTitle.classList.add('drawing2');
+                    //加入景點名稱
+                    let textNode = document.createTextNode(attdata.data[i][0].mrt);
+                    attTitle.appendChild(textNode);
+                    document.querySelectorAll('.pictitle3')[i].appendChild(attTitle)
+                }
+                //genre
+                for (var i = 0; i < 12; i++) {
+                    let attTitle = document.createElement('div');
+                    attTitle.classList.add('drawing3');
+                    //加入景點名稱
+                    let textNode = document.createTextNode(attdata.data[i][0].category);
+                    attTitle.appendChild(textNode);
+                    document.querySelectorAll('.pictitle4')[i].appendChild(attTitle)
+                }
+
+                //利用 window 的 scroll 事件，搭配 HTML 元件的 getBoundingClientRect 等等方法來偵測頁面是否已經捲動到最下方。
+                var windowHeight = document.documentElement.clientHeight // 瀏覽器可視範圍
+                var count = 0;
+                let lock = false;
+                window.addEventListener('scroll', function () {
+                    // 取得rect界限 top, left, right, 和 bottom
+                    // 相對於瀏覽器可視範圍左上角
+                    var targetRect = document.getElementsByClassName('bottom')[0].getBoundingClientRect()
+
+                    //目標元素距離視窗頂部距離
+                    var targetTop = targetRect.top
+
+                    if (count < 26) {
+                        if (lock) {
+                            return
+                        } else {
+                            console.log(targetTop, windowHeight);
+                            if (targetTop < windowHeight) {
+                                count++
+                                //若目標元素距離視窗頂部距離<視窗高度，呼叫 API 載入下一頁的資訊
+                                //debounce(getnextpage, 3000)
+                                setTimeout(getnextpage, 500);
+                                lock = true;
+                                // getnextpage();
+                            }
+                        }
+                    }
+                    function debounce(func, wait) {
+                        var timeout;
+                        return function () {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(func, wait);
+                        };
+                    };
+                    function getnextpage() {
+                        var req = new XMLHttpRequest();
+                        req.open("get", "http://3.140.25.231:3000/api/attractions?page=" + count)
+                        req.onload = function () {
+                            var infiniteWrap = document.querySelector('.infiniteWrap')
+                            // 分析JSON資料
+                            var attdata = JSON.parse(req.responseText);
+                            //new item
+                            var item = `<div class="pictitle">
+            <div class="pictitle1${count}"></div>
+            <div class="dset"><span class="pictitle2${count}"></span></div>
+            <div class="dset"><span class="pictitle3${count}"></span><span class="pictitle4${count}"></span></div>
+            </div>`
+                            for (var i = 0; i < 12; i++) {
+                                infiniteWrap.insertAdjacentHTML('beforeend', item);
+                            }
+                            //first image                
+                            for (var i = 0; i < 12; i++) {
+                                let link = document.createElement('a');
+                                let linkhref = "http://3.140.25.231:3000/attraction/" + (count * 12 + i + 1)
+                                link.setAttribute("href", linkhref)
+                                let attImg = document.createElement('img');
+                                attImg.classList.add('img-width');
+                                var imgSrc = attdata.data[i][0].images[0];
+                                attImg.setAttribute("src", imgSrc);
+                                link.appendChild(attImg)
+                                document.querySelectorAll('.pictitle1' + count)[i].appendChild(link);
+                            }
+
+                            //name
+                            for (var i = 0; i < 12; i++) {
+                                let attTitle = document.createElement('div');
+                                attTitle.classList.add('drawing1');
+                                //加入景點名稱
+                                var textNode = document.createTextNode(attdata.data[i][0].name);
+                                attTitle.appendChild(textNode);
+                                document.querySelectorAll('.pictitle2' + count)[i].appendChild(attTitle)
+                            }
+                            //MRT
+                            for (var i = 0; i < 12; i++) {
+                                let attTitle = document.createElement('div');
+                                attTitle.classList.add('drawing2');
+                                //加入景點名稱
+                                var textNode = document.createTextNode(attdata.data[i][0].mrt);
+                                attTitle.appendChild(textNode);
+                                document.querySelectorAll('.pictitle3' + count)[i].appendChild(attTitle)
+                            }
+                            //genre
+                            for (var i = 0; i < 12; i++) {
+                                let attTitle = document.createElement('div');
+                                attTitle.classList.add('drawing3');
+                                //加入景點名稱
+                                var textNode = document.createTextNode(attdata.data[i][0].category);
+                                attTitle.appendChild(textNode);
+                                document.querySelectorAll('.pictitle4' + count)[i].appendChild(attTitle)
+                            }
+                            lock = false;
+                        }
+                        req.send();
+
+                    }
+                })
+            }
+            req.send();
+        }
+
+    </script>
+</head>
+<style>
+    @import url(https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300&display=swap);
+    @import url(https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap);
+
+
+
+    body {
+        position: relative;
+        width: 1920px;
+        height: 1374px;
+        background: #FFFFFF;
+
+
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1 0 auto;
+
+    }
+
+    nav {
+        position: fixed;
+        width: 1920px;
+        height: 54px;
+        left: 0px;
+        top: 0px;
+
+        /* White */
+
+        background: #FFFFFF;
+        z-index: 8;
+    }
+
+    .nav_div {
+        position: absolute;
+        width: 62.5%;
+        height: 34px;
+        left: 360px;
+        top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .nav_div_h1 {
+        font-family: Noto Sans;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 30px;
+        line-height: 34px;
+        /* identical to box height, or 113% */
+
+
+        /* Cyan 800 */
+
+        color: #448899;
+
+    }
+
+    .frame2 {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: flex-start;
+        padding: 0px;
+
+        position: absolute;
+        width: 175px;
+        height: 34px;
+        right: 0px;
+        bottom: 0px;
+
+    }
+
+    .frame1 {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0px;
+
+        position: static;
+        width: 175px;
+        height: 34px;
+        left: 0px;
+        top: 0px;
+
+
+        /* Inside Auto Layout */
+
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+        margin: 0px 0px;
+    }
+
+    .bt1 {
+        /* display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start; */
+        padding: 10px;
+
+
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+        margin: 0px 0px;
+        font-size: 16px;
+        line-height: 30px;
+    }
+
+    .bt2 {
+        /* display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start; */
+        padding: 10px;
+
+        /* Inside Auto Layout */
+
+        flex: none;
+        order: 1;
+        flex-grow: 0;
+        margin: 0px 0px;
+        line-height: 30px;
+    }
+
+    .slogan {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+
+        position: absolute;
+        width: 1200px;
+        height: 169px;
+        left: 360px;
+        top: 129px;
+
+    }
+
+    .homesec {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: flex-start;
+        padding: 0px 232px;
+
+        position: absolute;
+        width: 1920px;
+        height: 320px;
+        right: 0px;
+        bottom: 1000px;
+
+        /* Light | Cyan Gradient (135deg) */
+
+        background: linear-gradient(135deg, #AADDEE 0%, #66AABB 100%);
+    }
+
+    .slogandiv {
+        position: static;
+        width: 1180px;
+        height: 149px;
+        left: 10px;
+        top: 10px;
+
+
+        /* Inside Auto Layout */
+
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+        margin: 10px 0px;
+    }
+
+    .sloganw {
+        position: absolute;
+        width: 1180px;
+        height: 78px;
+        left: 0px;
+        top: 0px;
+
+    }
+
+    .slo1 {
+        position: absolute;
+        width: 1180px;
+        height: 22px;
+        left: 0px;
+        top: 56px;
+
+        /* Body - Reg 16(13.3) */
+
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 13px;
+        /* or 83% */
+
+        display: flex;
+        align-items: center;
+
+        /* Gray 50 */
+
+        color: #F8F8F8;
+    }
+
+    .slo2 {
+        position: absolute;
+        width: 1180px;
+        height: 41px;
+        left: 0px;
+        top: 0px;
+
+        /* Header 1 - Bold 28(24) */
+
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 28px;
+        line-height: 24px;
+        /* or 86% */
+
+        display: flex;
+        align-items: center;
+
+        /* Gray 50 */
+
+        color: #F8F8F8;
+
+        /* Text Shadow */
+
+        text-shadow: 0px 0px 30px #AABBCC;
+    }
+
+    .search {
+        position: absolute;
+        width: 1180px;
+        height: 46px;
+        left: 0px;
+        top: 103px;
+    }
+
+    .searchsec {
+        position: absolute;
+        width: 460px;
+        height: 46px;
+        left: 0px;
+        top: 0px;
+
+    }
+
+    .sinput {
+        position: absolute;
+        width: 400px;
+        height: 46px;
+        left: 0px;
+        top: 0px;
+
+        /* Box Shadow */
+
+        filter: drop-shadow(0px 0px 20px #AABBCC);
+    }
+
+    input {
+
+        width: 400px;
+        height: 41px;
+        /* Box Shadow */
+
+        filter: drop-shadow(0px 0px 20px #AABBCC);
+    }
+
+    .icon {
+        position: absolute;
+        width: 60px;
+        height: 46px;
+        left: 400px;
+        top: 0px;
+        /* Cyan 800 */
+
+        background: #448899;
+    }
+
+    .icons {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        left: 15px;
+        top: 8px;
+    }
+
+    .icons img {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        left: 0px;
+        top: 0px;
+    }
+
+    .welcomepic {
+        position: static;
+        width: 650px;
+        left: 1038px;
+        top: 0px;
+
+        /* Inside Auto Layout */
+
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+        margin: 0px 0px;
+    }
+
+    .attr {
+        /* position: absolute; */
+        width: 62.5%;
+        height: 100%;
+        left: 360px;
+        top: 414px;
+        position: relative;
+
+        padding-bottom: 100px;
+    }
+
+    .attrgroup {
+        position: absolute;
+        width: 1170px;
+        height: 786px;
+        left: 15px;
+        top: 15px;
+
+    }
+
+    .content {
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .main {
+        width: 1170px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+
+    .img-width {
+
+        display: block;
+        width: 100%;
+        margin: 0px auto;
+    }
+
+
+    .pictitle {
+        /* width: 270px; */
+        display: flex;
+        flex-direction: column;
+        background: #FFFFFF;
+        border: 1px solid #E8E8E8;
+        border-radius: 5px;
+        width: 24%;
+        /* background-color: #E0F8FF; */
+        margin-bottom: 10px;
+
+    }
+
+    .pictitle1 {
+        position: relative;
+        height: 70%;
+    }
+
+    a {
+        text-decoration: none;
+        outline: none;
+
+    }
+
+    .pictitle2 {
+
+        height: 30%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+
+
+    }
+
+
+    .drawing1 {
+
+        width: 250px;
+        height: 22px;
+        margin-left: 10px;
+        /* Body - Bold 16(13.3) */
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 20px;
+        padding-top: 5%;
+
+        display: flex;
+        align-items: center;
+
+        /* Gray 700 */
+
+        color: #757575;
+    }
+
+    .drawing2 {
+        /* 忠孝復興 */
+        width: 125px;
+        height: 20px;
+        margin-left: 10px;
+
+        /* Body - Reg 16(13.3) */
+
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 83%;
+        /* or 83% */
+        color: #757575;
+    }
+
+    .drawing3 {
+
+        width: 125px;
+        height: 20px;
+        margin-right: 5px;
+        /* Body - Reg 16(13.3) */
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 83%;
+        /* or 83% */
+
+        display: flex;
+        align-items: center;
+        text-align: right;
+        color: #757575;
+
+    }
+
+
+    .dset {
+        padding-top: 3%;
+        padding-bottom: 3%;
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 3;
+    }
+
+    .footer {
+        /* flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 843px;
+        position: absolute; */
+
+
+        height: 104px;
+        /* left: 0px;
+        bottom: 0;
+        position: relative;
+        margin-top: -100px; */
+
+
+        /* Gray 700 */
+
+        background: #757575;
+
+    }
+
+    .copyright {
+
+        width: 234px;
+        height: 14px;
+
+
+        /* Body - Bold 16(13.3) */
+
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 13px;
+        /* identical to box height, or 83% */
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* White */
+
+        color: #FFFFFF;
+    }
+
+    .csec {
+
+        width: 234px;
+        height: 24px;
+    }
+
+    @media (max-width:1200px) {
+        .pictitle {
+            width: 46%;
+            text-align: center;
+            margin: auto;
+
+        }
+
+
+        .main {
+            width: 90%;
+        }
+
+    }
+
+    @media (max-width:500px) {
+        .pictitle {
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+        .main {
+            width: 90%;
+        }
+
+        nav {
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+
+        .welcomepic {
+            position: relative;
+            left: -23%;
+
+        }
+
+
+        img .welcomepic {
+            width: 57%;
+
+        }
+
+
+    }
+
+    @media (max-width:360px) {
+        .pictitle {
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+        .pictitle2 {
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+        .main {
+            width: 90%;
+        }
+
+        nav {
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+
+        .welcomepic {
+            position: relative;
+            left: -23%;
+
+        }
+
+
+        img .welcomepic {
+            width: 57%;
+
+        }
+
+
+    }
+
+    /* @media (min-width: 601px) {
+
+        .menu {
+            float: right;
+            clear: none;
+            max-height: 50px;
+        }
+
+        .menu li {
+            display: inline-block;
+        }
+    } */
+</style>
+
+<body onload="getData();">
+    <div class="container">
+
+        <nav>
+            <div class="nav_div">
+                <div class="nav_div_h1">臺北一日遊</div>
+                <div class="frame2">
+                    <div class="frame1">
+                        <div class="bt1">預定行程</div>
+                        <div class="bt2">登入/註冊</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <div class="homesec">
+            <div class="welcomepic"><img class="welcomepic" src="{{ url_for('static', filename='images/welcome.png') }}"
+                    alt=""></div>
+
+        </div>
+        <div class="slogan">
+            <div class="slogandiv">
+                <div class="sloganw">
+                    <div class="slo1">探索每個角落，體驗城市的深度旅遊行程</div>
+                    <div class="slo2">輕鬆享受台北一日悠閒</div>
+                </div>
+            </div>
+            <div class="search">
+                <div class="searchsec">
+                    <input type="text" placeholder="輸入景點名稱查詢" id="Str" onchange="getkeyword(this.id)">
+                </div>
+                <div class="icon">
+                    <div class="icons">
+                        <img src="{{ url_for('static', filename='images/search.png') }}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="attr">
+
+        <div class="attrgroup">
+
+            <div class="main infiniteWrap">
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+
+                </div>
+
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+
+                </div>
+
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+
+                </div>
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+                </div>
+
+
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+                </div>
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+                </div>
+
+
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+
+                </div>
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+
+                </div>
+
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+
+                </div>
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+                </div>
+
+
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+                </div>
+                <div class="pictitle">
+                    <div class="pictitle1"></div>
+                    <div class="dset"><span class="pictitle2"></span></div>
+                    <div class="dset"><span class="pictitle3"></span><span class="pictitle4"></span></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- <div class="bottom"></div> -->
+    </div>
+    <footer class="footer infinite-scroll-signal">
+        <div class="csec">
+            <p class="copyright bottom">COPYRIGHT © 2021 台北一日遊</p>
+        </div>
+
+
+    </footer>
+</body>
+
+</html>
