@@ -10,7 +10,7 @@ import requests
 mydb = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="ella223567",
+    password="***",
     database="travelwebsite",
     charset="utf8"
 )
