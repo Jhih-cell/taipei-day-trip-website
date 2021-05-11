@@ -12,7 +12,7 @@
             var url = new URL(getUrlString);
             var param = url.pathname.replace("/attraction/", "")
             var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/attraction/" + param)
+            req.open("get", "http://127.0.0.1:3000/api/attraction/" + param)
 
             req.onload = function () {
 
@@ -135,6 +135,10 @@
     @import url(https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300&display=swap);
     @import url(https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap);
 
+    *{
+        margin: 0;
+    }
+
     nav {
         height: 54px;
         position: fixed;
@@ -159,6 +163,7 @@
     }
 
     .nav_div_h1 {
+        padding: 8px;
         font-family: Noto Sans;
         font-style: normal;
 
@@ -167,6 +172,10 @@
         line-height: 34px;
         color: #448899;
 
+    }
+
+    .index{
+        text-decoration: none;
     }
 
     .frame1 {
@@ -270,6 +279,7 @@
         background: #FFFFFF;
         border-radius: 50%;
         opacity: 75%;
+        margin: 1.5px;
 
     }
 
@@ -459,7 +469,7 @@
         font-style: normal;
         font-weight: normal;
         font-size: 16px;
-        line-height: 23px;
+        line-height: 26px;
         color: #666666;
     }
 
@@ -468,8 +478,6 @@
         height: 32px;
         left: 10px;
         top: 126px;
-
-        /* Body - Bold 16(13.3) */
 
         font-family: Noto Sans TC;
         font-style: normal;
@@ -548,7 +556,7 @@
     @media (max-width:1200px) {
 
         .wrap {
-            display: grid;
+            display: inline-block;
         }
 
         nav {
@@ -576,6 +584,9 @@
         .bookingform {
             width: 90%;
         }
+        .title{
+            margin-bottom: 30px;
+        }
 
         section {
             margin: auto;
@@ -584,6 +595,7 @@
         .Carousel{
             width: 360px;
             height: 270px;
+            margin: auto;
         }
 
     }
@@ -618,6 +630,9 @@
         .bookingform {
             width: 90%;
         }
+        .title{
+            margin-bottom: 30px;
+        }
 
         section {
             margin: auto;
@@ -626,6 +641,7 @@
         .Carousel{
             width: 360px;
             height: 270px;
+            margin: auto;
         }
     }
 
@@ -638,7 +654,7 @@
 <body onload="getData();">
     <nav>
         <div class="nav">
-            <div class="nav_div_h1">臺北一日遊</div>
+            <a class="index" href="http://127.0.0.1:3000/"><div class="nav_div_h1">臺北一日遊</div></a>
             <div class="frame1">
                 <div class="bt1">預定行程</div>
                 <div class="bt2">登入/註冊</div>
@@ -664,8 +680,8 @@
                 <div class="circles"></div>
             </div>
             <div class="profile">
-                <div class="title">平安鐘</div>
-                <div class="location"><span class="category">公共藝術</span>at<span class="mrt">忠孝復興</span></div>
+                <div class="title"></div>
+                <div class="location"><span class="category"></span>at<span class="mrt"></span></div>
                 <div class="bookingform">
                     <div class="title"><span>訂購導覽行程</span></div>
                     <div class="normal">以此景點為中心的一日行程，帶您探索城市角落故事</div>
@@ -683,13 +699,12 @@
     </section>
     <div class="seperator_main"></div>
     <div class="info">
-        <div class="content">infocontent</div>
+        <div class="content"></div>
         <div class="locadd">景點地址</div>
-        <div class="locaddcont">臺北市 大安區忠孝東路4段</div>
+        <div class="locaddcont"></div>
         <div class="traway">交通方式</div>
         <div class="trawaycont">
-            捷運站名：忠孝復興站4號出口1.公車：204、212、212直、232、232副、262、262(區間)、278、299、521、605、605(副)、605(新台五線)、667、903、忠孝新幹線至頂好市場站
-            2.車位：太平洋崇光百貨地下停車場或市民大道附近地下停車場</div>
+            </div>
     </div>
     <footer>COPYRIGHT © 2021 台北一日遊</footer>
 
