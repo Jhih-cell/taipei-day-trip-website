@@ -4,7 +4,7 @@ import mysql.connector
 from mysql.connector import Error
 import json
 import os
-import requests
+
 
 
 mydb = mysql.connector.connect(
@@ -19,6 +19,8 @@ mydb = mysql.connector.connect(
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 # Pages
 
@@ -201,72 +203,154 @@ def get_attraction_api_byid(attractionId):
 
         return json.dumps(failmessage2, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
 
+        
 
-@app.route("/api/user", methods=['GET', 'POST', 'PATCH', 'DELETE'])
-def user_api():
-    # 取得使用者資料
-    email = request.args.get('email')
+#使用者相關api
+@app.route("/api/user", methods=['GET'])
+def user_get():
+    
 
-    failmessage = {
-        "data": None
-    }
-
-    mycursor = mydb.cursor()
-    sql = "SELECT id FROM user WHERE email=%s"
-    val = (email,)
-    mycursor.execute(sql, val)
-    count = len(mycursor.fetchall())
-    if count < 1:
-        return jsonify(failmessage)
-    else:
+#     # 檢查使用者登入狀態
+    if 'username' in session:
+        email=session['username']
         mycursor = mydb.cursor()
-        # 取出id
+    #         # 取出id
         sql = "SELECT id FROM user WHERE email=%s"
         val = (email, )
         mycursor.execute(sql, val)
         id = mycursor.fetchall()
         id = int(str(id)[2:len(id)-4])
-        # 取出使用者姓名
+    #         # 取出使用者姓名
         sql = "SELECT username FROM user WHERE email=%s"
         val = (email,)
         mycursor.execute(sql, val)
-        username = mycursor.fetchall()
-        username = str(username)[3:len(username)-5]
+        name = mycursor.fetchall()
+        name = str(name)[3:len(name)-5]
 
         successmessage = {
-            "data": {
-                "id": int(id),
-                "name": username,
-                "email": email
-            }
-        }
+                        "data": {
+                            "id": id,
+                            "name": name,
+                            "email": email
+                        }
+                        }
 
-        return jsonify(successmessage)
+        return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+    else:
+        # null 表示未登入
+        failmessage = {"data": None}
 
-        # 註冊
-        name = request.form["name"]
-        username = request.form["username"]
-        password = request.form["password"]
-        mycursor = mydb.cursor()
+        return json.dumps(failmessage, ensure_ascii=False), 500, {"Content-Type": "application/json"}
 
-        # 先檢查使用者是否有填入完整資訊
-        if name and username and password != "":
+#註冊
+@app.route("/api/user", methods=['POST'])
+def user_post():
+    try:
+        if mydb.is_connected() is True:
+            
+            data = request.get_data()
+            data = json.loads(data)
+            email=data['email']
+            name=data['name']
+            password=data['password']
+            # email='email'
+            # name='name'
+            # password='password'
 
-            sql = "SELECT username FROM user where username=%s"
-            val = (username,)
+            mycursor = mydb.cursor()
+            sql = "SELECT username FROM user where email=%s"
+            val = (email,)
             mycursor.execute(sql, val)
             result_count = len(mycursor.fetchall())
 
-        if result_count >= 1:
-            return redirect("/error/?message=帳號已經被註冊")
-        else:
+            if result_count >= 1:
+                failmessage = {
+                                "error": True,
+                                "message": "重複的 Email"
+                                }
+                return json.dumps(failmessage, ensure_ascii=False, indent=2), 400, {"Content-Type": "application/json"}
+            else:
 
-            sql = "INSERT INTO user (name,username,password) VALUES (%s, %s, %s)"
-            val = (name, username, password)
+                sql = "INSERT INTO user (username,email,password) VALUES (%s, %s, %s)"
+                val = (name, email, password)
+                mycursor.execute(sql, val)
+                mydb.commit()
+                successmessage = {
+                                    "ok": True,
+                                    }
+
+                return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+    except:
+        failmessage2 = {
+            "error": True,
+            "message": "伺服器內部錯誤"
+        }
+
+        return json.dumps(failmessage2, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
+#登入
+@app.route("/api/user", methods=['PATCH'])
+def user_patch():
+    try:
+        if mydb.is_connected() is True:
+            data=request.get_data()
+            data = json.loads(data)
+            email = data['email']
+            password = data['password']
+            sql = "SELECT id FROM user WHERE email=%s and password=%s"
+            val = (email, password)
+            mycursor = mydb.cursor()
             mycursor.execute(sql, val)
-            mydb.commit()
-            return redirect("/")
-    return redirect("/error/?message=請填入完整註冊資訊")
+            result = mycursor.fetchall()
+
+#             # 判斷是否有找到符合條件的帳密
+            if result == []:
+#                 # 驗證失敗
+                failmessage = {
+                    "error": True,
+                    "message": "帳號或密碼錯誤"
+                }
+
+                return json.dumps(failmessage, ensure_ascii=False, indent=2), 400, {"Content-Type": "application/json"}
+            else:
+#                 # 先把使用者姓名帶出來
+                mycursor = mydb.cursor()
+                sql = "SELECT username FROM user WHERE email=%s"
+                val = (email,)
+                mycursor.execute(sql, val)
+                name = mycursor.fetchall()
+                strname = str(name)
+                name = strname[3:len(strname)-4]
+#                 # 將mail加入 session 中紀錄
+                session['username'] = email
+
+                successmessage = {
+                                "ok": True
+                                }
+                return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+            
+    except:
+        failmessage = {
+            "error": True,
+            "message": "伺服器內部錯誤"
+        }
+
+        return json.dumps(failmessage, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
+
+
+#登出
+@app.route("/api/user", methods=['DELETE'])
+def signout():
+    # 連線到【登出功能網址】，在後端Session 中記錄使用者狀態為未登入
+    session.pop('username', None)
+    successmessage = {
+                    "ok": True
+                    }
+    return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+            
+
+
+
 
 
 app.run(port=3000)
+

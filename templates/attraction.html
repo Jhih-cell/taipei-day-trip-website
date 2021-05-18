@@ -122,8 +122,118 @@
                     setimg();
                 })
 
+                get();
+
+            }
+            req.send();
+
+        }
+        //popup_登入
+
+        function popup() {
+            document.getElementById('popup1').classList.remove("overlay");
+            document.getElementById('popup1').classList.add("overlay_target")
+        }
+
+        function endpopup() {
+            document.getElementById('popup1').classList.remove("overlay_target");
+            document.getElementById('popup1').classList.add("overlay")
+
+        }
+        //popup_註冊
+
+        function popup2() {
+            document.getElementById('popup2').classList.remove("overlay");
+            document.getElementById('popup2').classList.add("overlay_target")
+        }
+
+        function endpopup2() {
+            document.getElementById('popup2').classList.remove("overlay_target");
+            document.getElementById('popup2').classList.add("overlay")
+            document.getElementById('popup1').classList.remove("overlay_target");
+            document.getElementById('popup1').classList.add("overlay")
+        }
 
 
+        //從前端POST資料到後端_註冊
+        function register() {
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+            var account = {
+                name: name,
+                email: email,
+                password: password
+            }
+            var req = new XMLHttpRequest();
+            req.open("post", "http://127.0.0.1:3000/api/user", true)
+            req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
+            let data = JSON.stringify(account); //將物件資料轉成字串
+
+            req.onload = function () {
+                if (req.status == 200) {
+                    document.querySelector('.query').innerHTML = '<p style="color:green;">註冊成功</p>'
+                } else if (req.status >= 400 && req.status <= 500) {
+                    document.querySelector('.query').innerHTML = '<p style="color:red;">註冊失敗</p><p>已經有帳戶了？點此登入</p>'
+                }
+
+            }
+            req.send(data); //送出字串
+        }
+
+        function login() {
+
+            let email = document.getElementById('loginemail').value;
+            let password = document.getElementById('loginpassword').value;
+            let account = {
+                email: email,
+                password: password
+            }
+            var req = new XMLHttpRequest();
+            req.open("patch", "http://127.0.0.1:3000/api/user", true)
+            req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
+            let data = JSON.stringify(account); //將物件資料轉成字串
+
+            req.onload = function () {
+                if (req.status == 200) {
+                    window.location.reload();
+                } else {
+                    document.querySelector('.query0').innerHTML = '<p style="color:red;">登入失敗</p><p onclick="popup2();">還沒有帳戶？點此註冊</p>'
+                }
+
+            }
+            req.send(data); //送出字串
+
+        }
+        function get() {
+            var req = new XMLHttpRequest();
+            req.open("get", "http://127.0.0.1:3000/api/user", true)
+            req.onload = function () {
+
+                if (req.responseText == '{"data": null}') {
+                    console.log('未登入')
+
+
+                } else {
+                    console.log('已登入')
+                    var bt2 = document.getElementById('bt2');
+                    bt2.innerHTML = '<div class="bt2" onclick="logout();">登出</div>';
+                }
+
+            }
+            req.send();
+
+
+        }
+
+        function logout() {
+            var req = new XMLHttpRequest();
+            req.open("delete", "http://127.0.0.1:3000/api/user", true)
+            req.onload = function () {
+                if (req.status = 200) {
+                    console.log('已登出')
+                    window.location.reload();
+                }
             }
             req.send();
 
@@ -135,7 +245,7 @@
     @import url(https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300&display=swap);
     @import url(https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap);
 
-    *{
+    * {
         margin: 0;
     }
 
@@ -174,7 +284,7 @@
 
     }
 
-    .index{
+    .index {
         text-decoration: none;
     }
 
@@ -389,7 +499,7 @@
         border: #FFFFFF 2px solid
     }
 
-    button {
+    .bookingform button {
         padding: 10px 18px;
         width: 154px;
         height: 36px;
@@ -553,6 +663,129 @@
         padding: 5%;
     }
 
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        transition: opacity 200ms;
+        visibility: hidden;
+        opacity: 0;
+
+
+    }
+
+    .overlay_target {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        transition: opacity 200ms;
+        visibility: visible;
+        opacity: 1;
+        z-index: 11;
+    }
+
+    .popup {
+        margin: 75px auto;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #666;
+        width: 300px;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        position: relative;
+
+    }
+
+    .close {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 20px;
+        right: 20px;
+        opacity: 0.8;
+        transition: all 200ms;
+        font-size: 24px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #666;
+
+    }
+
+    .content {
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .form input {
+        color: #CCCCCC;
+        width: 310px;
+        height: 35px;
+        background: #FFFFFF;
+        border: 1px solid #CCCCCC;
+        border-radius: 5px;
+        margin: 5px auto;
+
+    }
+
+    .form button {
+        width: 310px;
+        height: 35px;
+        background: #448899;
+        border-radius: 5px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 19px;
+        line-height: 16px;
+        color: #FFFFFF;
+        border-style: none;
+        margin-bottom: 5px;
+    }
+
+    .form p {
+        width: 310px;
+        height: 22px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 13px;
+        text-align: center;
+        color: #666666;
+    }
+
+    .form h3 {
+        width: 310px;
+        height: 27px;
+        font-family: Noto Sans TC;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 24px;
+        line-height: 24px;
+        text-align: center;
+        color: #666666;
+        margin-bottom: 7px;
+    }
+
+    .form .top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 340px;
+        height: 10px;
+
+        background: linear-gradient(270deg, #337788 0%, #66AABB 100%);
+    }
+
     @media (max-width:1200px) {
 
         .wrap {
@@ -584,7 +817,8 @@
         .bookingform {
             width: 90%;
         }
-        .title{
+
+        .title {
             margin-bottom: 30px;
         }
 
@@ -592,7 +826,8 @@
             margin: auto;
             text-align: center;
         }
-        .Carousel{
+
+        .Carousel {
             width: 360px;
             height: 270px;
             margin: auto;
@@ -630,7 +865,8 @@
         .bookingform {
             width: 90%;
         }
-        .title{
+
+        .title {
             margin-bottom: 30px;
         }
 
@@ -638,7 +874,8 @@
             margin: auto;
             text-align: center;
         }
-        .Carousel{
+
+        .Carousel {
             width: 360px;
             height: 270px;
             margin: auto;
@@ -646,18 +883,20 @@
     }
 
 
-    @media (min-width:360px) {
-        
-    }
+    @media (min-width:360px) {}
 </style>
 
 <body onload="getData();">
     <nav>
         <div class="nav">
-            <a class="index" href="http://127.0.0.1:3000/"><div class="nav_div_h1">臺北一日遊</div></a>
+            <a class="index" href="http://127.0.0.1:3000/">
+                <div class="nav_div_h1">臺北一日遊</div>
+            </a>
             <div class="frame1">
                 <div class="bt1">預定行程</div>
-                <div class="bt2">登入/註冊</div>
+                <a id="bt2" class="button">
+                    <div class="bt2" onclick="popup();">登入/註冊</div>
+                </a>
             </div>
         </div>
         </div>
@@ -704,9 +943,77 @@
         <div class="locaddcont"></div>
         <div class="traway">交通方式</div>
         <div class="trawaycont">
-            </div>
+        </div>
     </div>
     <footer>COPYRIGHT © 2021 台北一日遊</footer>
+
+    <!-- popup -->
+    <div id="popup1" class="overlay">
+
+        <div class="popup">
+
+            <a class="close" onclick="endpopup();">&times;</a>
+            <div class="content">
+                <form class="form" action="/api/user" method="GET">
+                    <div class="top"></div>
+                    <h3>登入會員帳號</h3>
+                    <table>
+                        <tr>
+                            <td>
+                                <input id="loginemail" type="text" name="email" action="/api/user" method="POST"
+                                    placeholder="輸入電子信箱" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input id="loginpassword" type="password" name="password" action="/api/user"
+                                    method="POST" placeholder="輸入密碼" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><button onclick="login();return false;">登入帳戶</button></td>
+                        </tr>
+                        <tr>
+                            <td class="query0">
+                                <p onclick="popup2();">還沒有帳戶？點此註冊</p>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="popup2" class="overlay">
+
+        <div class="popup">
+
+            <a class="close" onclick="endpopup2();">&times;</a>
+            <div class="content">
+                <form class="form">
+                    <div class="top"></div>
+                    <h3>註冊會員帳號</h3>
+                    <table>
+                        <tr>
+                            <td><input id="name" type="text" name="name" placeholder="輸入姓名" /></td>
+                        </tr>
+                        <tr>
+                            <td><input id="email" name="email" placeholder="輸入電子郵件" /></td>
+                        </tr>
+                        <tr>
+                            <td><input id="password" type="password" name="password" placeholder="輸入密碼" /></td>
+                        </tr>
+                        <tr>
+                            <td><button onclick="register();return false;">註冊新帳戶</button></td>
+                        </tr>
+                        <tr>
+                            <td class="query">
+                                <p>已經有帳戶了？點此登入</p>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
 
 
 </body>
