@@ -12,7 +12,7 @@
             var url = new URL(getUrlString);
             var param = url.pathname.replace("/attraction/", "")
             var req = new XMLHttpRequest();
-            req.open("get", "http://127.0.0.1:3000/api/attraction/" + param)
+            req.open("get", "http://3.140.25.231:3000/api/attraction/" + param)
 
             req.onload = function () {
 
@@ -154,7 +154,10 @@
             document.getElementById('popup1').classList.add("overlay")
         }
 
-
+        function backloginpop() {
+            document.getElementById('popup2').classList.remove("overlay_target");
+            document.getElementById('popup1').classList.add("overlay_target")
+        }
         //從前端POST資料到後端_註冊
         function register() {
             let name = document.getElementById('name').value;
@@ -166,7 +169,7 @@
                 password: password
             }
             var req = new XMLHttpRequest();
-            req.open("post", "http://127.0.0.1:3000/api/user", true)
+            req.open("post", "http://3.140.25.231:3000/api/user", true)
             req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
             let data = JSON.stringify(account); //將物件資料轉成字串
 
@@ -174,7 +177,7 @@
                 if (req.status == 200) {
                     document.querySelector('.query').innerHTML = '<p style="color:green;">註冊成功</p>'
                 } else if (req.status >= 400 && req.status <= 500) {
-                    document.querySelector('.query').innerHTML = '<p style="color:red;">註冊失敗</p><p>已經有帳戶了？點此登入</p>'
+                    document.querySelector('.query').innerHTML = '<p style="color:red;">註冊失敗</p><p onclick="backloginpop();" style="cursor: pointer;">已經有帳戶了？點此登入</p>'
                 }
 
             }
@@ -190,7 +193,7 @@
                 password: password
             }
             var req = new XMLHttpRequest();
-            req.open("patch", "http://127.0.0.1:3000/api/user", true)
+            req.open("patch", "http://3.140.25.231:3000/api/user", true)
             req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
             let data = JSON.stringify(account); //將物件資料轉成字串
 
@@ -198,16 +201,17 @@
                 if (req.status == 200) {
                     window.location.reload();
                 } else {
-                    document.querySelector('.query0').innerHTML = '<p style="color:red;">登入失敗</p><p onclick="popup2();">還沒有帳戶？點此註冊</p>'
+                    document.querySelector('.query0').innerHTML = '<p style="color:red;cursor:pointer;">登入失敗</p><p onclick="popup2();">還沒有帳戶？點此註冊</p>'
                 }
 
             }
             req.send(data); //送出字串
 
         }
+        //取得登入資料
         function get() {
             var req = new XMLHttpRequest();
-            req.open("get", "http://127.0.0.1:3000/api/user", true)
+            req.open("get", "http://3.140.25.231:3000/api/user", true)
             req.onload = function () {
 
                 if (req.responseText == '{"data": null}') {
@@ -225,10 +229,10 @@
 
 
         }
-
+        //登出
         function logout() {
             var req = new XMLHttpRequest();
-            req.open("delete", "http://127.0.0.1:3000/api/user", true)
+            req.open("delete", "http://3.140.25.231:3000/api/user", true)
             req.onload = function () {
                 if (req.status = 200) {
                     console.log('已登出')
@@ -238,6 +242,76 @@
             req.send();
 
         }
+
+        //建立預定行程
+        function reservation() {
+            let bt2txt = document.querySelector('.bt2').innerText
+            if (bt2txt == "登入/註冊") {
+                popup();
+            } else {
+                var getUrlString = location.href;
+                var url = new URL(getUrlString);
+                var attractionId = url.pathname.replace("/attraction/", "")
+                var date = document.getElementById('date').value
+                var choose1 = document.getElementById("part1")
+                var choose2 = document.getElementById("part2")
+                var time = ''
+                if (choose1.checked == true && choose2.checked == false) {
+                    time = '早上 9 點到下午 4 點'
+                } else if (choose2.checked == true && choose1.checked == false) {
+                    time = '下午 2 點到晚上 9 點'
+                }
+                var price = ''
+                if (time == '早上 9 點到下午 4 點') {
+                    price = 2000
+                } else {
+                    price = 2500
+                }
+
+
+                var bookinginfo = {
+                    attractionId: attractionId,
+                    date: date,
+                    time: time,
+                    price: price
+                }
+
+                if (bookinginfo.date == "" || bookinginfo.time == "") {
+                    alert("請輸入完整資訊")
+                } else {
+                    var req = new XMLHttpRequest();
+                    req.open("post", "http://3.140.25.231:3000/api/booking", true)
+                    req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
+                    let data = JSON.stringify(bookinginfo); //將物件資料轉成字串
+
+                    req.onload = function () {
+                        if (req.status == 200) {
+                            console.log('success!')
+                            document.location.href = "/booking";
+                        } else if (req.status >= 400 && req.status <= 500) {
+                            alert('fail!')
+                        }
+                    }
+                    req.send(data); //送出字串
+                }
+
+
+            }
+
+
+
+
+        }
+
+        function reservation2() {
+            let bt2txt = document.querySelector('.bt2').innerText
+            if (bt2txt == "登入/註冊") {
+                popup();
+            } else {
+                document.location.href = "/booking";
+            }
+        }
+
     </script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
 </head>
@@ -286,6 +360,7 @@
 
     .index {
         text-decoration: none;
+        cursor: pointer;
     }
 
     .frame1 {
@@ -302,6 +377,7 @@
         color: #666666;
         margin: 10px 0px;
         padding: 10px;
+        cursor: pointer;
     }
 
     .bt2 {
@@ -441,10 +517,27 @@
 
         font-size: 16px;
         line-height: 18px;
-        padding: 10px 20px;
+        padding: 0px 20px;
         display: flex;
         align-items: center;
         color: #666666;
+    }
+
+    .normaltw {
+        font-family: Noto Sans TC;
+        font-style: normal;
+        text-align: left;
+
+        font-size: 16px;
+        line-height: 18px;
+        display: flex;
+        align-items: center;
+        color: #666666;
+    }
+
+    .dollar {
+        width: 35px;
+        height: 0px;
     }
 
     .bookingform .date,
@@ -466,9 +559,7 @@
         color: #666666;
     }
 
-    .dollar {
-        margin: 3px 3px 3px 3px;
-    }
+
 
     /* 隱藏 checkbox */
     #toggle-1 {
@@ -486,6 +577,8 @@
         height: 22px;
         background: #FFFFFF;
         border-radius: 50%;
+        margin-right: 5px;
+
     }
 
     .box:checked {
@@ -499,7 +592,13 @@
         border: #FFFFFF 2px solid
     }
 
+    button,
+    .button {
+        cursor: pointer;
+    }
+
     .bookingform button {
+        margin-top: 10px;
         padding: 10px 18px;
         width: 154px;
         height: 36px;
@@ -531,6 +630,7 @@
         align-items: center;
         text-align: left;
         color: #666666;
+        padding-top: 15px;
     }
 
     .category {
@@ -697,6 +797,7 @@
         border: 1px solid #666;
         width: 300px;
         box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
         position: relative;
 
     }
@@ -713,7 +814,7 @@
         font-weight: bold;
         text-decoration: none;
         color: #666;
-
+        cursor: pointer;
     }
 
     .content {
@@ -726,7 +827,6 @@
     }
 
     .form input {
-        color: #CCCCCC;
         width: 310px;
         height: 35px;
         background: #FFFFFF;
@@ -790,6 +890,7 @@
 
         .wrap {
             display: inline-block;
+            padding-top: 30px;
         }
 
         nav {
@@ -889,11 +990,11 @@
 <body onload="getData();">
     <nav>
         <div class="nav">
-            <a class="index" href="http://127.0.0.1:3000/">
+            <a class="index" href="http://3.140.25.231:3000/">
                 <div class="nav_div_h1">臺北一日遊</div>
             </a>
             <div class="frame1">
-                <div class="bt1">預定行程</div>
+                <div class="bt1" onclick="reservation2();">預定行程</div>
                 <a id="bt2" class="button">
                     <div class="bt2" onclick="popup();">登入/註冊</div>
                 </a>
@@ -924,14 +1025,16 @@
                 <div class="bookingform">
                     <div class="title"><span>訂購導覽行程</span></div>
                     <div class="normal">以此景點為中心的一日行程，帶您探索城市角落故事</div>
-                    <div class="date"><span>選擇日期:</span><input id="date" type="date"></div>
-                    <div class="choose"><span>選擇時間：</span><input id="part1" class="box" type="checkbox">上半天<input
-                            id="part2" class="box" type="checkbox">下半天</div>
+                    <div class="date"><span>選擇日期：</span><input id="date" type="date" min="2021-05-24"></div>
+                    <div class="choose"><span>選擇時間：</span>
+                        <input id="part1" class="box" type="checkbox">上半天
+                        <input id="part2" class="box" type="checkbox">下半天
+                    </div>
 
                     <div class="charge"><span>導覽費用：</span>
-                        <div class="normal">新台幣<span class="dollar"></span>元</div>
+                        <div class="normaltw">新台幣<span class="dollar"></span>元</div>
                     </div>
-                    <button>開始預訂行程</button>
+                    <button onclick="reservation();">開始預訂行程</button>
                 </div>
             </div>
         </div>
@@ -945,7 +1048,7 @@
         <div class="trawaycont">
         </div>
     </div>
-    <footer>COPYRIGHT © 2021 台北一日遊</footer>
+    <footer>COPYRIGHT © 2021 臺北一日遊</footer>
 
     <!-- popup -->
     <div id="popup1" class="overlay">
@@ -975,7 +1078,7 @@
                         </tr>
                         <tr>
                             <td class="query0">
-                                <p onclick="popup2();">還沒有帳戶？點此註冊</p>
+                                <p onclick="popup2();" style="cursor: pointer;">還沒有帳戶？點此註冊</p>
                             </td>
                         </tr>
                     </table>
@@ -1007,7 +1110,7 @@
                         </tr>
                         <tr>
                             <td class="query">
-                                <p>已經有帳戶了？點此登入</p>
+                                <p onclick="backloginpop();" style="cursor: pointer;">已經有帳戶了？點此登入</p>
                             </td>
                         </tr>
                     </table>
@@ -1019,4 +1122,3 @@
 </body>
 
 </html>
-
