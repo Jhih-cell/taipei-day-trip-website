@@ -6,12 +6,11 @@ import json
 import os
 
 
-
 mydb = mysql.connector.connect(
-    host="127.0.0.1",
+    host="3.140.25.231",
     user="root",
-    password="***",
-    database="travelwebsite",
+    password="@Ella2235",
+    database="traveldt",
     charset="utf8"
 )
 
@@ -203,16 +202,15 @@ def get_attraction_api_byid(attractionId):
 
         return json.dumps(failmessage2, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
 
-        
 
-#使用者相關api
+# 使用者相關api
 @app.route("/api/user", methods=['GET'])
 def user_get():
-    
+
 
 #     # 檢查使用者登入狀態
     if 'username' in session:
-        email=session['username']
+        email = session['username']
         mycursor = mydb.cursor()
     #         # 取出id
         sql = "SELECT id FROM user WHERE email=%s"
@@ -242,20 +240,19 @@ def user_get():
 
         return json.dumps(failmessage, ensure_ascii=False), 500, {"Content-Type": "application/json"}
 
-#註冊
+# 註冊
+
+
 @app.route("/api/user", methods=['POST'])
 def user_post():
     try:
         if mydb.is_connected() is True:
-            
+
             data = request.get_data()
             data = json.loads(data)
-            email=data['email']
-            name=data['name']
-            password=data['password']
-            # email='email'
-            # name='name'
-            # password='password'
+            email = data['email']
+            name = data['name']
+            password = data['password']
 
             mycursor = mydb.cursor()
             sql = "SELECT username FROM user where email=%s"
@@ -287,12 +284,14 @@ def user_post():
         }
 
         return json.dumps(failmessage2, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
-#登入
+# 登入
+
+
 @app.route("/api/user", methods=['PATCH'])
 def user_patch():
     try:
         if mydb.is_connected() is True:
-            data=request.get_data()
+            data = request.get_data()
             data = json.loads(data)
             email = data['email']
             password = data['password']
@@ -312,14 +311,7 @@ def user_patch():
 
                 return json.dumps(failmessage, ensure_ascii=False, indent=2), 400, {"Content-Type": "application/json"}
             else:
-#                 # 先把使用者姓名帶出來
-                mycursor = mydb.cursor()
-                sql = "SELECT username FROM user WHERE email=%s"
-                val = (email,)
-                mycursor.execute(sql, val)
-                name = mycursor.fetchall()
-                strname = str(name)
-                name = strname[3:len(strname)-4]
+#                 
 #                 # 將mail加入 session 中紀錄
                 session['username'] = email
 
@@ -327,7 +319,7 @@ def user_patch():
                                 "ok": True
                                 }
                 return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
-            
+
     except:
         failmessage = {
             "error": True,
@@ -337,7 +329,7 @@ def user_patch():
         return json.dumps(failmessage, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
 
 
-#登出
+# 登出
 @app.route("/api/user", methods=['DELETE'])
 def signout():
     # 連線到【登出功能網址】，在後端Session 中記錄使用者狀態為未登入
@@ -346,11 +338,149 @@ def signout():
                     "ok": True
                     }
     return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+
+# 取得未送出的預定行程
+@app.route("/api/booking", methods=['GET'])
+def reservation_get(): 
+    try:
+        if mydb.is_connected() is True:
+            if 'username' in session:
+                email=session['username']                
             
+                mycursor = mydb.cursor()                               
+                sql = "SELECT attractionId FROM bookings WHERE mail=%s ORDER BY id DESC LIMIT 0,1"
+                val = (email,)
+                mycursor.execute(sql, val)
+                id = mycursor.fetchall()
+                id = int(str(id)[2:len(id)-4])
+                
+                sql = "SELECT * FROM traveldt WHERE id = %s"
+                val = (id,)
+                mycursor.execute(sql, val)
+                site = mycursor.fetchall()                   
+                
+                sql = "SELECT date FROM bookings WHERE mail=%s ORDER BY id DESC LIMIT 0,1"
+                val = (email,)
+                mycursor.execute(sql, val)
+                date = mycursor.fetchall()
+                date = str(date)[16:len(date)-5].replace(',',' -')
+                
+                sql = "SELECT time FROM bookings WHERE mail=%s ORDER BY id DESC LIMIT 0,1"
+                val = (email,)
+                mycursor.execute(sql, val)
+                time = mycursor.fetchall()
+                time = str(time)[3:len(time)-5]
+                
+                sql = "SELECT price FROM bookings WHERE mail=%s ORDER BY id DESC LIMIT 0,1"
+                val = (email,)
+                mycursor.execute(sql, val)
+                price = mycursor.fetchall()
+                price = int(str(price)[2:len(price)-4])                    
+
+                successmessage={
+                    "data": {
+                        "attraction": {
+                            "id": site[0][0],
+                            "name": site[0][1],
+                            "address": site[0][4],
+                            "image": site[0][9].split(",")[0]
+                        },
+                        "date":date,
+                        "time":time,
+                        "price":price,
+                    }
+                }
+
+                return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"} 
+                            
+            else:
+                failmessage = {
+                    "error": True,
+                    "message": "未登入系統，拒絕存取"
+                }
+
+                return json.dumps(failmessage, ensure_ascii=False, indent=2), 403, {"Content-Type": "application/json"}
+    except:
+        failmessage2 = {
+            "error": True,
+            "message": "伺服器內部錯誤"
+        }
+
+        return json.dumps(failmessage2, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
+
+
+    
+
+# 建立新的預定行程
+
+@app.route("/api/booking", methods=['POST'])
+def reservation():
+
+    try:
+        if mydb.is_connected() is True:
+            data = request.get_data()
+            data = json.loads(data)
+            attractionId= data['attractionId']
+            date= data['date']
+            time=data['time']
+            price= data['price']
+            
+            if 'username' in session:
+                mail = session['username']
+                mycursor = mydb.cursor()
+                sql = "INSERT INTO bookings (attractionId, date, time, price, mail) VALUES (%s, %s, %s, %s, %s)"
+                val = (attractionId, date, time, price, mail,)
+                mycursor.execute(sql, val)
+                mydb.commit()
+                successmessage = {
+                                    "ok": True,
+                                    }
+
+                return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+            elif date or time or price == None or False or "" :
+                fail = {
+                                "error": True,
+                                "message": "建立失敗，輸入不正確或其他原因"
+                                }
+
+                return json.dumps(fail, ensure_ascii=False, indent=2), 400, {"Content-Type": "application/json"}
+            elif 'username' not in session: 
+                failmessage = {
+                    "error": True,
+                    "message": "未登入系統，拒絕存取"
+                }
+
+                return json.dumps(failmessage, ensure_ascii=False, indent=2), 403, {"Content-Type": "application/json"}
+    except:
+        failmessage = {
+            "error": True,
+            "message": "伺服器內部錯誤"
+        }
+        return json.dumps(failmessage, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
+
+@app.route("/api/booking", methods=['DELETE'])
+def cancel():
+    if 'username' in session:
+        mail = session['username']
+        mycursor = mydb.cursor()
+        sql = "DELETE FROM bookings WHERE mail=%s"
+        val = (mail,)
+        mycursor.execute(sql, val)
+        mydb.commit()
+        successmessage = {
+                        "ok": True
+                        }
+        return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+    else:
+        failmessage = {
+            "error": True,
+            "message": "未登入系統，拒絕存取"
+        }
+
+        return json.dumps(failmessage, ensure_ascii=False, indent=2), 403, {"Content-Type": "application/json"}
 
 
 
 
-
-app.run(port=3000)
+app.run(host="0.0.0.0",port=3000)
 
