@@ -4,12 +4,14 @@ import mysql.connector
 from mysql.connector import Error
 import json
 import os
+import random
+import requests
 
 
 mydb = mysql.connector.connect(
     host="3.140.25.231",
     user="root",
-    password="*",
+    password="@Ella2235",
     database="traveldt",
     charset="utf8"
 )
@@ -479,6 +481,104 @@ def cancel():
 
         return json.dumps(failmessage, ensure_ascii=False, indent=2), 403, {"Content-Type": "application/json"}
 
+@app.route("/api/orders", methods=['POST'])
+def orders():
+
+    try:
+        if mydb.is_connected() is True:
+            data = request.get_data()
+            data = json.loads(data)
+            prime= data['prime']
+            price= data['order']['price']
+            
+            if 'username' in session:
+                session['prime']=prime
+                session['paid']='N'
+                session['bookingID']=random.randrange(5, 50)
+                
+                req_url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
+
+                #pay by prime 資料
+                formdata = {
+                            "prime": str(session['prime']),
+                            "partner_key": "partner_qwBIqg5OIcjzI1AEyVFAioQcO1JXOerDiWPenF9cCAhh6PH77lD1QdAf",
+                            "merchant_id": "jhihhan_ESUN",
+                            "details":"TapPay Test",
+                            "amount": price,
+                            "cardholder": {
+                                "phone_number": "+886923456789",
+                                "name": "王小明",
+                                "email": "LittleMing@Wang.com",
+                                "zip_code": "100",
+                                "address": "台北市天龍區芝麻街1號1樓",
+                                "national_id": "A123456789"
+                            },
+                            "remember": True
+                }
+                
+                json_str = json.dumps(formdata)
+
+                #request header
+                req_header = {
+                    'Content-Type': 'application/json',
+                    'x-api-key': 'partner_qwBIqg5OIcjzI1AEyVFAioQcO1JXOerDiWPenF9cCAhh6PH77lD1QdAf'
+                }
+                #發出請求
+                response = requests.post(
+                    req_url, 
+                    data = json_str, 
+                    headers = req_header
+                )
+
+                print (response.text)
+                if json.loads(response.text)['msg']=='Success':
+                    session['paid']='Y'
+                    print(session['paid'])
+                    message ={
+                                "data": {
+                                    "number": "20210425121135",
+                                    "payment": {
+                                    "status": 0,
+                                    "message": "付款成功"
+                                    }
+                                },
+                                "bookingID":session['bookingID']
+                            }
+                    return json.dumps(message, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}  
+                else:
+                    session['paid']='N'
+                    message ={
+                                "data": {
+                                    "number": "",
+                                    "payment": {
+                                    "status": 0,
+                                    "message": "付款失敗"
+                                    }
+                                },
+                                "bookingID":session['bookingID']
+                            }
+                    return json.dumps(message, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
+
+            elif session['bookingID']=="":
+                failmessage = {
+                    "error": True,
+                    "message": "訂單建立失敗，輸入不正確或其他原因"
+                }
+
+                return json.dumps(failmessage, ensure_ascii=False, indent=2), 400, {"Content-Type": "application/json"}
+            elif 'username' not in session: 
+                failmessage = {
+                    "error": True,
+                    "message": "未登入系統，拒絕存取"
+                }
+
+                return json.dumps(failmessage, ensure_ascii=False, indent=2), 403, {"Content-Type": "application/json"}
+    except:
+        failmessage = {
+            "error": True,
+            "message": "伺服器內部錯誤"
+        }
+        return json.dumps(failmessage, ensure_ascii=False, indent=2), 500, {"Content-Type": "application/json"}
 
 
 

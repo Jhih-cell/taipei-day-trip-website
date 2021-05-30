@@ -287,9 +287,9 @@
                     req.onload = function () {
                         if (req.status == 200) {
                             console.log('success!')
-                            document.location.href = "/booking";
+                            document.location.href = "/booking?"+attractionId;
                         } else if (req.status >= 400 && req.status <= 500) {
-                            alert('fail!')
+                            console.log('fail!')
                         }
                     }
                     req.send(data); //送出字串
@@ -665,8 +665,8 @@
 
     .info {
         width: 1180px;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: 5px;
+        margin-right: 5px;
         margin-bottom: 120px;
     }
 
@@ -1025,7 +1025,7 @@
                 <div class="bookingform">
                     <div class="title"><span>訂購導覽行程</span></div>
                     <div class="normal">以此景點為中心的一日行程，帶您探索城市角落故事</div>
-                    <div class="date"><span>選擇日期：</span><input id="date" type="date" min="2021-05-24"></div>
+                    <div class="date"><span>選擇日期：</span><input id="date" type="date" min="2021-05-31"></div>
                     <div class="choose"><span>選擇時間：</span>
                         <input id="part1" class="box" type="checkbox">上半天
                         <input id="part2" class="box" type="checkbox">下半天
