@@ -11,7 +11,7 @@ import requests
 mydb = mysql.connector.connect(
     host="3.140.25.231",
     user="root",
-    password="@Ella2235",
+    password="***",
     database="traveldt",
     charset="utf8"
 )
