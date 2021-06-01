@@ -501,7 +501,7 @@ def orders():
                 #pay by prime 資料
                 formdata = {
                             "prime": str(session['prime']),
-                            "partner_key": "partner_qwBIqg5OIcjzI1AEyVFAioQcO1JXOerDiWPenF9cCAhh6PH77lD1QdAf",
+                            "partner_key": "***",
                             "merchant_id": "jhihhan_ESUN",
                             "details":"TapPay Test",
                             "amount": price,
@@ -521,7 +521,7 @@ def orders():
                 #request header
                 req_header = {
                     'Content-Type': 'application/json',
-                    'x-api-key': 'partner_qwBIqg5OIcjzI1AEyVFAioQcO1JXOerDiWPenF9cCAhh6PH77lD1QdAf'
+                    'x-api-key': '***'
                 }
                 #發出請求
                 response = requests.post(
