@@ -12,7 +12,7 @@
         function getData() {
 
             var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/booking")
+            req.open("get", "http://127.0.0.1:3000/api/booking")
 
             req.onload = function () {
 
@@ -104,40 +104,48 @@
                         // Enable submit Button to get prime.
                         // TPDirect.card.getPrime()
                         submitButton.removeAttribute('disabled')
+                        submitButton.style.background = '#448899'
+                        
                     } else {
                         // Disable submit Button to get prime.
                         submitButton.setAttribute('disabled', true)
+                        submitButton.style.background = '#D8D6D5'
                     }
 
                     // cardTypes = ['mastercard', 'visa', 'jcb', 'amex', 'unknown']
                     // if (update.cardType === 'visa') {
                     //     // Handle card type visa.
                     // }
+                    // 取得 TapPay Fields 的 status
+                    const tappayStatus =TPDirect.card.getTappayFieldsStatus()
+                    var cardnumbergroup=document.querySelector('.card-number-group')
+                    var expirationdategroup=document.querySelector('.expiration-date-group')
+                    var cvcgroup=document.querySelector('.cvc-group')
 
                     // number 欄位是錯誤的
-                    // if (update.status.number === 2) {
-                    //     setNumberFormGroupToError('.card-number-group')
-                    // } else if (update.status.number === 0) {
-                    //     setNumberFormGroupToSuccess('.card-number-group')
-                    // } else {
-                    //     setNumberFormGroupToNormal('.card-number-group')
-                    // }
+                    if (update.status.number === 2) {
+                        setNumberFormGroupToError(cardnumbergroup)
+                    } else if (tappayStatus.number === 0) {
+                        setNumberFormGroupToSuccess(cardnumbergroup)
+                    } else {
+                        setNumberFormGroupToNormal(cardnumbergroup)
+                    }
 
-                    // if (update.status.expiry === 2) {
-                    //     setNumberFormGroupToError('.expiration-date-group')
-                    // } else if (update.status.expiry === 0) {
-                    //     setNumberFormGroupToSuccess('.expiration-date-group')
-                    // } else {
-                    //     setNumberFormGroupToNormal('.expiration-date-group')
-                    // }
+                    if (update.status.expiry === 2) {
+                        setNumberFormGroupToError(expirationdategroup)
+                    } else if (update.status.expiry === 0) {
+                        setNumberFormGroupToSuccess(expirationdategroup)
+                    } else {
+                        setNumberFormGroupToNormal(expirationdategroup)
+                    }
 
-                    // if (update.status.cvc === 2) {
-                    //     setNumberFormGroupToError('.cvc-group')
-                    // } else if (update.status.cvc === 0) {
-                    //     setNumberFormGroupToSuccess('.cvc-group')
-                    // } else {
-                    //     setNumberFormGroupToNormal('.cvc-group')
-                    // }
+                    if (update.status.cvc === 2) {
+                        setNumberFormGroupToError(cvcgroup)
+                    } else if (update.status.cvc === 0) {
+                        setNumberFormGroupToSuccess(cvcgroup)
+                    } else {
+                        setNumberFormGroupToNormal(cvcgroup)
+                    }
 
                 })
 
@@ -151,15 +159,23 @@
         }
         function onSubmit(event) {
             // event.preventDefault()
+                       
+            const tappayStatus = TPDirect.card.getTappayFieldsStatus()
+            console.log(tappayStatus)
+
+            // Check TPDirect.card.getTappayFieldsStatus().canGetPrime before TPDirect.card.getPrime
+            if (tappayStatus.canGetPrime === false) {
+                console.log('can not get prime')
+                alert('請輸入正確的信用卡資訊')
+                return
+            }
 
 
-            // 取得 TapPay Fields 的 status
-            // const tappayStatus =
-            //     TPDirect.card.getTappayFieldsStatus()
+
             // Get prime
             TPDirect.card.getPrime((result) => {
                 if (result.status !== 0) {
-                    aler('請輸入正確的信用卡資訊')
+                    alert('請輸入正確的信用卡資訊')
                     console.log('get prime error ' + result.msg)
                     return
                 }
@@ -182,12 +198,12 @@
                         "contact": {
                             "name": document.getElementById('contactname').value,
                             "email": document.getElementById('bookingmail').value,
-                            "phone":  document.getElementById('phone').value,
+                            "phone": document.getElementById('phone').value,
                         }
                     }
                 }
                 var req = new XMLHttpRequest();
-                req.open("post", "http://3.140.25.231:3000/api/orders", true)
+                req.open("post", "http://127.0.0.1:3000/api/orders", true)
                 req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
                 let data = JSON.stringify(orderdata); //將物件資料轉成字串
 
@@ -195,7 +211,7 @@
                     if (req.status == 200) {
                         console.log("成功送到order api了", req.response)
                         if (JSON.parse(req.responseText).data.payment.message == "付款成功") {
-                            document.location.href = "/thankyou?number="+JSON.parse(req.responseText).bookingID
+                            document.location.href = "/thankyou?number=" + JSON.parse(req.responseText).bookingID
 
                         }
 
@@ -206,6 +222,21 @@
                 req.send(data); //送出字串
             })
         }
+
+        function setNumberFormGroupToError(selector) {
+            selector.classList.add('has-error')
+            selector.classList.remove('has-success')
+        }
+        function setNumberFormGroupToSuccess(selector) {
+            selector.classList.add('has-error')
+            selector.classList.add('has-success')
+        }
+
+        function setNumberFormGroupToNormal(selector) {
+            selector.classList.add('has-error')
+            selector.classList.add('has-success')
+        }
+
 
         //popup_登入
 
@@ -250,7 +281,7 @@
                 password: password
             }
             var req = new XMLHttpRequest();
-            req.open("post", "http://3.140.25.231:3000/api/user", true)
+            req.open("post", "http://127.0.0.1:3000/api/user", true)
             req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
             let data = JSON.stringify(account); //將物件資料轉成字串
 
@@ -274,7 +305,7 @@
                 password: password
             }
             var req = new XMLHttpRequest();
-            req.open("patch", "http://3.140.25.231:3000/api/user", true)
+            req.open("patch", "http://127.0.0.1:3000/api/user", true)
             req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
             let data = JSON.stringify(account); //將物件資料轉成字串
 
@@ -283,7 +314,7 @@
                     window.location.reload();
 
                 } else {
-                    document.querySelector('.query0').innerHTML = '<p style="color:red;cursor:pointer;">登入失敗</p><p onclick="popup2();">還沒有帳戶？點此註冊</p>'
+                    document.querySelector('.query0').innerHTML = '<p style="color:red;cursor:pointer;">請輸入正確的帳號密碼</p><p onclick="popup2();">還沒有帳戶？點此註冊</p>'
                 }
 
             }
@@ -294,7 +325,7 @@
 
         function logout() {
             var req = new XMLHttpRequest();
-            req.open("delete", "http://3.140.25.231:3000/api/user", true)
+            req.open("delete", "http://127.0.0.1:3000/api/user", true)
             req.onload = function () {
                 if (req.status = 200) {
                     window.location.reload();
@@ -306,7 +337,7 @@
         //刪除行程
         function cancel() {
             var req = new XMLHttpRequest();
-            req.open("delete", "http://3.140.25.231:3000/api/booking", true)
+            req.open("delete", "http://127.0.0.1:3000/api/booking", true)
             req.onload = function () {
                 if (req.status = 200) {
                     console.log('已刪除')
@@ -319,7 +350,7 @@
         //取得登入資料
         function get() {
             var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/user", true)
+            req.open("get", "http://127.0.0.1:3000/api/user", true)
             req.onload = function () {
 
                 if (req.responseText == '{"data": null}') {
@@ -355,6 +386,8 @@
                 document.location.href = "/booking";
             }
         }
+
+
     </script>
 
 
@@ -790,14 +823,15 @@
         margin: 5px 0;
         padding: 5px; */
         width: 200px;
-    height: 38px;
-    background: #FFFFFF;
-    border: 1px solid #E8E8E8;
-    border-radius: 5px;
+        height: 38px;
+        background: #FFFFFF;
+        border: 1px solid #E8E8E8;
+        border-radius: 5px;
     }
 
     .tappay-field-focus {
-        
+        background-color: transparent;
+
     }
 
     @media (max-width:1200px) {
@@ -840,6 +874,16 @@
             display: flex;
             flex-direction: column;
         }
+    }
+    .has-error .tappay-field-focus {
+            border-color: #843534;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+        }
+    .has-success .tappay-field-focus {
+        border-color: #2b542c;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #67b168;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #67b168;
     }
 
 
@@ -895,14 +939,12 @@
             flex-direction: column;
         }
     }
-
-
 </style>
 
 <body onload="getData();">
     <nav>
         <div class="nav">
-            <a class="index" href="http://3.140.25.231:3000/">
+            <a class="index" href="http://127.0.0.1:3000/">
                 <div class="nav_div_h1">臺北一日遊</div>
             </a>
             <div class="frame1">
@@ -938,20 +980,26 @@
         </div>
         <div class="seperator_main"></div>
 
-        <form class="contact_form">
+        <form name="myForm" class="contact_form" >
             <h3>您的聯絡資訊</h3>
-            <div><span>聯絡姓名：</span><input type="text" id="contactname" /></div>
-            <div><span>聯絡信箱：</span><input type="text" id="bookingmail" /></div>
-            <div><span>手機號碼：</span><input type="text" id="phone" /></div>
+            <div><span>聯絡姓名：</span><input type="text" id="contactname" required/></div>
+            <div><span>聯絡信箱：</span><input type="text" id="bookingmail" required/></div>
+            <div><span>手機號碼：</span><input type="text" name="fph" id="phone" required/></div>
             <p>請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</p>
         </form>
         <div class="seperator_main"></div>
         <form class="payment cardview-container tappay-field-focus">
             <h3>信用卡付款資訊</h3>
 
-            <div><span>卡片號碼：</span><div class="tpfield" id="card-number"></div></div>
-            <div><span>過期時間：</span><div class="tpfield" id="card-expiration-date"></div></div>
-            <div><span>驗證密碼：</span><div class="tpfield" id="card-ccv"></div></div>
+            <div class="card-number-group"><span>卡片號碼：</span>
+                <div class="tpfield" id="card-number"></div>
+            </div>
+            <div class="expiration-date-group"><span>過期時間：</span>
+                <div class="tpfield" id="card-expiration-date"></div>
+            </div>
+            <div class="cvc-group"><span>驗證密碼：</span>
+                <div class="tpfield" id="card-ccv"></div>
+            </div>
 
         </form>
 
@@ -959,7 +1007,7 @@
 
         <div class="confirm">
             <div>總價：新台幣 <span id="payment"></span> 元</div>
-            <button id="submit-button" onclick="onSubmit();">確認訂購並付款</button>
+            <button id="submit-button" onclick="onSubmit();" type="button" >確認訂購並付款</button>
         </div>
 
     </div>
