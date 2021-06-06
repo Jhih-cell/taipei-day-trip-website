@@ -12,13 +12,15 @@
             var url = new URL(getUrlString);
             var param = url.pathname.replace("/attraction/", "")
             var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/attraction/" + param)
+            req.open("get", "http://127.0.0.1:3000/api/attraction/" + param)
 
             req.onload = function () {
 
+                var today = new Date().toISOString().split('T')[0];
+                document.getElementsByName("setTodaysDate")[0].setAttribute('min', today);
+
                 // 分析JSON資料
                 var attdata = JSON.parse(req.responseText);
-                console.log(attdata.data.name)
 
 
                 //景點名稱
@@ -64,7 +66,6 @@
                 carousel.appendChild(attImg);
                 //小圓點
                 var circlecount = attdata.data.images.length;
-                console.log(circlecount)
 
 
                 for (var i = 0; i < circlecount; i++) {
@@ -169,19 +170,40 @@
                 password: password
             }
             var req = new XMLHttpRequest();
-            req.open("post", "http://3.140.25.231:3000/api/user", true)
+            req.open("post", "http://127.0.0.1:3000/api/user", true)
             req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
             let data = JSON.stringify(account); //將物件資料轉成字串
 
-            req.onload = function () {
-                if (req.status == 200) {
-                    document.querySelector('.query').innerHTML = '<p style="color:green;">註冊成功</p>'
-                } else if (req.status >= 400 && req.status <= 500) {
-                    document.querySelector('.query').innerHTML = '<p style="color:red;">註冊失敗</p><p onclick="backloginpop();" style="cursor: pointer;">已經有帳戶了？點此登入</p>'
-                }
+            let namemsg = document.getElementById('namemsg')
+            let mailbuildmsg = document.getElementById('mailbuildmsg')
+            let passwordmsg = document.getElementById('passwordbuildmsg')
+            if (name == "") {
+                mailbuildmsg.setAttribute('style', 'display:none')
+                passwordmsg.setAttribute('style', 'display:none')
+                namemsg.removeAttribute('style')
+            } else if (email == "") {
+                namemsg.setAttribute('style', 'display:none')
+                passwordmsg.setAttribute('style', 'display:none')
+                mailbuildmsg.removeAttribute('style')
+            } else if (password == "") {
+                mailbuildmsg.setAttribute('style', 'display:none')
+                namemsg.setAttribute('style', 'display:none')
+                passwordmsg.removeAttribute('style')
+            } else {
+                req.onload = function () {
+                    namemsg.setAttribute('style', 'display:none')
+                    mailbuildmsg.setAttribute('style', 'display:none')
+                    passwordmsg.setAttribute('style', 'display:none')
 
+                    if (req.status == 200) {
+                        document.querySelector('.query').innerHTML = '<p style="color:green;">註冊成功</p>'
+                    } else if (req.status >= 400 && req.status <= 500) {
+                        document.querySelector('.query').innerHTML = '<p style="color:red;">註冊失敗</p><p onclick="backloginpop();" style="cursor: pointer;">已經有帳戶了？點此登入</p>'
+                    }
+
+                }
+                req.send(data); //送出字串
             }
-            req.send(data); //送出字串
         }
 
         function login() {
@@ -193,7 +215,7 @@
                 password: password
             }
             var req = new XMLHttpRequest();
-            req.open("patch", "http://3.140.25.231:3000/api/user", true)
+            req.open("patch", "http://127.0.0.1:3000/api/user", true)
             req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
             let data = JSON.stringify(account); //將物件資料轉成字串
 
@@ -201,7 +223,18 @@
                 if (req.status == 200) {
                     window.location.reload();
                 } else {
-                    document.querySelector('.query0').innerHTML = '<p style="color:red;cursor:pointer;">登入失敗</p><p onclick="popup2();">還沒有帳戶？點此註冊</p>'
+                    if (email == "") {
+                        let mailmsg = document.getElementById('mailmsg')
+                        mailmsg.removeAttribute('style')
+                    } else if (password == "") {
+                        let passwordmsg = document.getElementById('passwordmsg')
+                        mailmsg.setAttribute('style', 'display:none')
+                        passwordmsg.removeAttribute('style')
+                    } else {
+                        passwordmsg.setAttribute('style', 'display:none')
+                        document.querySelector('.query0').innerHTML = '<p style="color:red">請輸入正確的帳號密碼</p><p onclick="popup2();" style="cursor:pointer;">還沒有帳戶？點此註冊</p>'
+                    }
+
                 }
 
             }
@@ -211,9 +244,8 @@
         //取得登入資料
         function get() {
             var req = new XMLHttpRequest();
-            req.open("get", "http://3.140.25.231:3000/api/user", true)
+            req.open("get", "http://127.0.0.1:3000/api/user", true)
             req.onload = function () {
-
                 if (req.responseText == '{"data": null}') {
                     console.log('未登入')
 
@@ -232,7 +264,7 @@
         //登出
         function logout() {
             var req = new XMLHttpRequest();
-            req.open("delete", "http://3.140.25.231:3000/api/user", true)
+            req.open("delete", "http://127.0.0.1:3000/api/user", true)
             req.onload = function () {
                 if (req.status = 200) {
                     console.log('已登出')
@@ -280,16 +312,16 @@
                     alert("請輸入完整資訊")
                 } else {
                     var req = new XMLHttpRequest();
-                    req.open("post", "http://3.140.25.231:3000/api/booking", true)
+                    req.open("post", "http://127.0.0.1:3000/api/booking", true)
                     req.setRequestHeader("Content-type", "application/json"); //告訴後端是用 JSON 格式
                     let data = JSON.stringify(bookinginfo); //將物件資料轉成字串
 
                     req.onload = function () {
                         if (req.status == 200) {
                             console.log('success!')
-                            document.location.href = "/booking?"+attractionId;
+                            document.location.href = "/booking";
                         } else if (req.status >= 400 && req.status <= 500) {
-                            console.log('fail!')
+                            alert('fail!')
                         }
                     }
                     req.send(data); //送出字串
@@ -665,8 +697,8 @@
 
     .info {
         width: 1180px;
-        margin-left: 5px;
-        margin-right: 5px;
+        margin-left: auto;
+        margin-right: auto;
         margin-bottom: 120px;
     }
 
@@ -990,7 +1022,7 @@
 <body onload="getData();">
     <nav>
         <div class="nav">
-            <a class="index" href="http://3.140.25.231:3000/">
+            <a class="index" href="http://127.0.0.1:3000/">
                 <div class="nav_div_h1">臺北一日遊</div>
             </a>
             <div class="frame1">
@@ -1025,7 +1057,7 @@
                 <div class="bookingform">
                     <div class="title"><span>訂購導覽行程</span></div>
                     <div class="normal">以此景點為中心的一日行程，帶您探索城市角落故事</div>
-                    <div class="date"><span>選擇日期：</span><input id="date" type="date" min="2021-05-31"></div>
+                    <div class="date"><span>選擇日期：</span><input name='setTodaysDate' id="date" type="date" required></div>
                     <div class="choose"><span>選擇時間：</span>
                         <input id="part1" class="box" type="checkbox">上半天
                         <input id="part2" class="box" type="checkbox">下半天
@@ -1062,15 +1094,17 @@
                     <h3>登入會員帳號</h3>
                     <table>
                         <tr>
-                            <td>
+                            <td id='mailsec'>
                                 <input id="loginemail" type="text" name="email" action="/api/user" method="POST"
                                     placeholder="輸入電子信箱" />
+                                <p id="mailmsg" style="display: none;">請輸入帳號</p>
                             </td>
                         </tr>
                         <tr>
-                            <td>
+                            <td id='passwordsec'>
                                 <input id="loginpassword" type="password" name="password" action="/api/user"
                                     method="POST" placeholder="輸入密碼" />
+                                <p id="passwordmsg" style="display: none;">請輸入密碼</p>
                             </td>
                         </tr>
                         <tr>
@@ -1098,12 +1132,15 @@
                     <table>
                         <tr>
                             <td><input id="name" type="text" name="name" placeholder="輸入姓名" /></td>
+                            <p id="namemsg" style="display: none;">請輸入姓名</p>
                         </tr>
                         <tr>
                             <td><input id="email" name="email" placeholder="輸入電子郵件" /></td>
+                            <p id="mailbuildmsg" style="display: none;">請輸入email</p>
                         </tr>
                         <tr>
                             <td><input id="password" type="password" name="password" placeholder="輸入密碼" /></td>
+                            <p id="passwordbuildmsg" style="display: none;">請輸入密碼</p>
                         </tr>
                         <tr>
                             <td><button onclick="register();return false;">註冊新帳戶</button></td>

@@ -6,13 +6,20 @@ import json
 import os
 import random
 import requests
+from dotenv import load_dotenv
+load_dotenv()
+
+
+host=os.getenv("host")
+password=os.getenv("password")
+partner_key=os.getenv("partner_key")
 
 
 mydb = mysql.connector.connect(
-    host="3.140.25.231",
+    host=host,
     user="root",
-    password="***",
-    database="traveldt",
+    password=password,
+    database="travelwebsite",
     charset="utf8"
 )
 
@@ -185,7 +192,7 @@ def get_attraction_api_byid(attractionId):
                         "images": site[0][9].split(",")
                     }
                 }
-                print(mydb.is_connected())
+                # print(mydb.is_connected())
                 return json.dumps(successmessage, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}
 
             elif result_count == 0 or path == "" or path is False:
@@ -501,7 +508,7 @@ def orders():
                 #pay by prime 資料
                 formdata = {
                             "prime": str(session['prime']),
-                            "partner_key": "partner_qwBIqg5OIcjzI1AEyVFAioQcO1JXOerDiWPenF9cCAhh6PH77lD1QdAf",
+                            "partner_key": partner_key,
                             "merchant_id": "jhihhan_ESUN",
                             "details":"TapPay Test",
                             "amount": price,
@@ -521,7 +528,7 @@ def orders():
                 #request header
                 req_header = {
                     'Content-Type': 'application/json',
-                    'x-api-key': 'partner_qwBIqg5OIcjzI1AEyVFAioQcO1JXOerDiWPenF9cCAhh6PH77lD1QdAf'
+                    'x-api-key': partner_key
                 }
                 #發出請求
                 response = requests.post(
@@ -544,6 +551,14 @@ def orders():
                                 },
                                 "bookingID":session['bookingID']
                             }
+                    
+                    mail = session['username']
+                    mycursor = mydb.cursor()
+                    sql = "DELETE FROM bookings WHERE mail=%s"
+                    val = (mail,)
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+                    
                     return json.dumps(message, ensure_ascii=False, indent=2), 200, {"Content-Type": "application/json"}  
                 else:
                     session['paid']='N'
@@ -583,4 +598,3 @@ def orders():
 
 
 app.run(host="0.0.0.0",port=3000)
-
