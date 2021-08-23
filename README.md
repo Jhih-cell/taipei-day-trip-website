@@ -26,4 +26,4 @@
 訂單頁面景點輪播效果：JavaScript
 
 ［資料庫結構］（會員、訂單、景點資訊）<br />
-![](https://github.com/Jhih-cell/taipei-day-trip-website/blob/main/DBstructure.JPG)
+![](https://github.com/Jhih-cell/taipei-day-trip-website/blob/main/dbstr.png)
