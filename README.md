@@ -13,7 +13,7 @@ CVV：123<br />
 
 **Techniques used**<br />
 [ Backend end ]<br />
-member account functions, sites information fetching, itinerary booking, payment API ：follow the style of RESTfulAPI<br />
+API for member account functions, sites information fetching, itinerary booking, payment：follow the style of RESTfulAPI<br />
 Server：Flask<br />
 Deploys the website online：EC2 instance ( Red Hat Enterprise Linux 8 ) <br />
 Database：MySQL<br />
