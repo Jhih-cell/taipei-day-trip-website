@@ -25,5 +25,4 @@ User interface：RWD、Infinite Scroll<br />
 Front page, booking page fetching sites information：AJAX<br />
 booking page sites carousel：JavaScript
 
-［Database Structure］（member、booking、sites information）<br />
-![](https://github.com/Jhih-cell/taipei-day-trip-website/blob/main/dbstr.png)
+
