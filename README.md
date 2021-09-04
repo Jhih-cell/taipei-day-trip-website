@@ -1,6 +1,6 @@
 ### Taipei-day-trip
 
- [Click me to the online website](http://18.217.38.82:3000/)  
+ Online website deployed on EC2 → [http://18.217.38.82/](http://18.217.38.82/)  
 
 **Information for test ↓** (or sign up on your own)<br>
 [ member ]<br />
