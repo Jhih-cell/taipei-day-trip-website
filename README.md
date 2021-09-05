@@ -24,6 +24,10 @@ Confidential information management：set up environmental variables with python
 [ Front end ]<br />
 User interface：RWD、Infinite Scroll<br />
 Front page, booking page fetching sites information：AJAX<br />
-booking page sites carousel：JavaScript
+booking page sites carousel：JavaScript<br />
+
+**system architecture**<br />
+<img width="714" alt="systemStructure" src="https://user-images.githubusercontent.com/58781081/132129096-2c84471c-b06d-4e57-bf8e-094aee92f1ed.png">
+
 
 
