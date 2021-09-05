@@ -16,7 +16,7 @@ CVV：123<br />
 API for member account functions, sites information fetching, itinerary booking, payment：follow the style of RESTfulAPI<br />
 Server：Flask<br />
 Deploys the website online：EC2 instance ( Red Hat Enterprise Linux 8 ) <br />
-Rever proxy：NGINX<br />
+Reverse proxy：NGINX<br />
 Database：MySQL<br />
 Third-party payment：Connects TapPay API payment system to pay for the booked itinerary<br />
 Confidential information management：set up environmental variables with python-dotenv kit<br />
