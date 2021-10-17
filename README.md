@@ -1,6 +1,6 @@
 ## Taipei-day-trip
 
- Online website deployed on EC2 → [http://18.217.38.82/](http://18.217.38.82/)  
+ Online website deployed on EC2 → [http://3.23.237.166/](http://3.23.237.166/)  
 
 ### Information for test ↓ (or sign up on your own)<br>
 [ member ]<br />
