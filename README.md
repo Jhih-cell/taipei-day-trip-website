@@ -1,6 +1,6 @@
 ## Taipei-day-trip
 
- Online website deployed on EC2 → [http://3.23.237.166/](http://3.23.237.166/)  
+ Online website deployed on EC2 → [https://travel.readitlater.live/](https://travel.readitlater.live/)  
 
 ### Information for test ↓ (or sign up on your own)<br>
 [ member ]<br />
@@ -40,6 +40,7 @@ API for member account functions, sites information fetching, itinerary booking,
 Server：Flask<br />
 Deploys the website online：EC2 instance ( Red Hat Enterprise Linux 8 ) <br />
 Reverse proxy：NGINX<br />
+Add SSL certificate to the website：Cloudflare<br />
 Database：MySQL<br />
 Third-party payment：Connects TapPay API payment system to pay for the booked itinerary<br />
 Confidential information management：set up environmental variables with python-dotenv kit<br />
