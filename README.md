@@ -6,10 +6,14 @@
 [ member ]<br />
 account: test@mail.com<br />
 password: test<br />
-[ credit card ]<br />
-card number：4242 4242 4242 4242<br />
-expiration date：01/23<br />
-CVV：123<br />
+[ credit card ]<br />(please choose from down below)
+|card number        |expiration date|CVV |
+|-------------------|---------------|----|
+|4242 4242 4242 4242|01/23          |123 |
+|3543 9234 8838 2426|01/23          |123 |
+|3454 5465 4604 563 |01/23          |1234|
+|5451 4178 2523 0575|01/23          |123 |
+|6234 5774 3859 4899|01/23          |123 |
 
 ### Feature demo<br />
 **Frontpage**<br />
