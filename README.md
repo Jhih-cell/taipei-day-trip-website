@@ -1,6 +1,6 @@
 ## Taipei-day-trip
 
- Online website deployed on EC2 → [https://travel.readitlater.live/](https://travel.readitlater.live/)  
+ Online website deployed on EC2 → [https://travel.readitlater.live/](https://travel.readitlater.live/) ( IP NOT IN USE NOW ) 
 
 ### Information for test ↓ (or sign up on your own)<br>
 [ member ]<br />
